@@ -24,190 +24,184 @@ public class LinearRegressionModelCas {
 	public static void main(String[] args) throws Exception {
 		CSVParser csvParser = new CSVParserBuilder().withSeparator(';').build();
 		FileReader fileReader = new FileReader("data.csv");
-		CSVReader csvReader = new CSVReaderBuilder(fileReader).withCSVParser(csvParser).withSkipLines(1).build();
+		CSVReader csvReader = new CSVReaderBuilder(fileReader).withCSVParser(csvParser).build();
 		List<String[]> data = csvReader.readAll();
 
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
 		atts.add(new Attribute("date", "yyyy-MM-dd"));
-		atts.add(new Attribute("cas confirmes"));
-		atts.add(new Attribute("moyenne sur a jour(s)"));
-		atts.add(new Attribute("moyenne sur b jour(s)"));
-		atts.add(new Attribute("moyenne sur c jour(s)"));
-		atts.add(new Attribute("moyenne sur d jour(s)"));
-		atts.add(new Attribute("moyenne sur e jour(s)"));
-		atts.add(new Attribute("moyenne sur f jour(s)"));
-		atts.add(new Attribute("moyenne sur g jour(s)"));
-		atts.add(new Attribute("nouveaux cas"));
+		atts.add(new Attribute("nouveaux" + data.get(0)[1].substring(5)));
+		atts.add(new Attribute("nouveaux" + data.get(0)[2].substring(5)));
+		atts.add(new Attribute("nouveaux" + data.get(0)[3].substring(5)));
+		atts.add(new Attribute("nouveaux" + data.get(0)[4].substring(5)));
+		atts.add(new Attribute("nouveaux" + data.get(0)[5].substring(5)));
+		atts.add(new Attribute(data.get(0)[6]));
+		atts.add(new Attribute(data.get(0)[7]));
+		atts.add(new Attribute("nouveaux" + data.get(0)[8].substring(5)));
+		atts.add(new Attribute(data.get(0)[9]));
+		atts.add(new Attribute(data.get(0)[10]));
+		atts.add(new Attribute("nouveaux cas J+1"));
+		atts.add(new Attribute("nouveaux cas J+7"));
+		atts.add(new Attribute("nouveaux cas J+14"));
+		atts.add(new Attribute("nouveaux cas J+21"));
 		String dataOrigin = "https://www.data.gouv.fr/fr/datasets/donnees-relatives-a-lepidemie-de-covid-19-en-france-vue-densemble/#_";
 
-		int expanse = 21, bestA = 3, bestB = 7, bestC = 8, bestD = 9, bestE = 15, bestF = 21, bestG = 1;
-		double bestScore = Double.MAX_VALUE;
-		Instances dataSet = null;
+		Instances dataSet = new Instances("** Instances from " + dataOrigin + " **", atts, 0);
 		Instances trainSet = null;
 		Instances testSet = null;
 		LinearRegression lrClassifier = new LinearRegression();
 		Evaluation eval = null;
 
-		boolean searching = false;
-
-		if (searching) {
-			for (int a = 1; a < expanse; a++) {
-				for (int b = a + 1; b < expanse + 1; b++) {
-					for (int c = b + 1; c < expanse + 2; c++) {
-						for (int d = c + 1; d < expanse + 3; d++) {
-							for (int e = d + 1; e < expanse + 4; e++) {
-								for (int f = e + 1; f < expanse + 5; f++) {
-									for (int g = f + 1; g < expanse + 6; g++) {
-
-										dataSet = new Instances("** Instances from : " + dataOrigin + " **", atts, 0);
-
-										for (int i = 0; i < data.size(); i++) {
-											double[] instanceValue = new double[dataSet.numAttributes()];
-											instanceValue[0] = dataSet.attribute("date").parseDate(data.get(i)[0]);
-											instanceValue[1] = Integer.parseInt(data.get(i)[1]);
-											instanceValue[2] = (i > a)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - 1 - a).value(1)) / a
-													: instanceValue[1] / a;
-											instanceValue[2] = instanceValue[2] > 0 ? instanceValue[2] : 0;
-											instanceValue[3] = (i > b)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - b).value(1)) / b
-													: instanceValue[1] / b;
-											instanceValue[3] = instanceValue[3] > 0 ? instanceValue[3] : 0;
-											instanceValue[4] = (i > c)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - c).value(1)) / c
-													: instanceValue[1] / c;
-											instanceValue[4] = instanceValue[4] > 0 ? instanceValue[4] : 0;
-											instanceValue[5] = (i > d)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - d).value(1)) / d
-													: instanceValue[1] / d;
-											instanceValue[5] = instanceValue[5] > 0 ? instanceValue[5] : 0;
-											instanceValue[6] = (i > e)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - e).value(1)) / e
-													: instanceValue[1] / e;
-											instanceValue[6] = instanceValue[6] > 0 ? instanceValue[6] : 0;
-											instanceValue[7] = (i > f)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - f).value(1)) / f
-													: instanceValue[1] / f;
-											instanceValue[7] = instanceValue[7] > 0 ? instanceValue[7] : 0;
-											instanceValue[8] = (i > g)
-													? (dataSet.instance(i - 1).value(1)
-															- dataSet.instance(i - g).value(1)) / g
-													: instanceValue[1] / g;
-											instanceValue[8] = instanceValue[8] > 0 ? instanceValue[8] : 0;
-											instanceValue[9] = (i > 0)
-													? instanceValue[1] - dataSet.lastInstance().value(1)
-													: instanceValue[1];
-											instanceValue[9] = instanceValue[9] > 0 ? instanceValue[9] : 0;
-											dataSet.add(new DenseInstance(1.0, instanceValue));
-										}
-
-										dataSet.setClassIndex(9);
-
-										// Entraînement du modèle de régression linéaire
-										trainSet = dataSet.trainCV(5, 4);
-										testSet = dataSet.testCV(5, 4);
-
-										lrClassifier.buildClassifier(trainSet);
-
-										eval = new Evaluation(trainSet);
-										eval.evaluateModel(lrClassifier, testSet);
-
-										if (Math.abs(eval.correlationCoefficient()) > 0.5
-												&& bestScore > eval.rootMeanSquaredError()) {
-											bestScore = eval.rootMeanSquaredError();
-											bestA = a;
-											bestB = b;
-											bestC = c;
-											bestD = d;
-											bestE = e;
-											bestF = f;
-											bestG = g;
-										}
-
-										dataSet.clear();
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		double[] firstInstanceValue = new double[dataSet.numAttributes()];
+		firstInstanceValue[0] = dataSet.attribute("date").parseDate("2020-03-01");
+		for (int i = 1; i < firstInstanceValue.length - 1; i++) {
+			firstInstanceValue[i] = Double.NaN;
 		}
+		firstInstanceValue[dataSet.numAttributes() - 1] = Double.parseDouble(data.get(1)[1]);
+		dataSet.add(new DenseInstance(1.0, firstInstanceValue));
 
-		dataSet = new Instances("** Instances from : " + dataOrigin + " **", atts, 0);
-		dataSet.renameAttribute(2, "Moyenne sur " + bestA + " jour(s)");
-		dataSet.renameAttribute(3, "Moyenne sur " + bestB + " jour(s)");
-		dataSet.renameAttribute(4, "Moyenne sur " + bestC + " jour(s)");
-		dataSet.renameAttribute(5, "Moyenne sur " + bestD + " jour(s)");
-		dataSet.renameAttribute(6, "Moyenne sur " + bestE + " jour(s)");
-		dataSet.renameAttribute(7, "Moyenne sur " + bestF + " jour(s)");
-		dataSet.renameAttribute(8, "Moyenne sur " + bestG + " jour(s)");
-
-		for (int i = 0; i < data.size(); i++) {
+		for (int i = 1; i < data.size() - 1; i++) {
 			double[] instanceValue = new double[dataSet.numAttributes()];
 			instanceValue[0] = dataSet.attribute("date").parseDate(data.get(i)[0]);
-			instanceValue[1] = Integer.parseInt(data.get(i)[1]);
-			instanceValue[2] = (i > bestA)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - 1 - bestA).value(1)) / bestA
-					: instanceValue[1] / bestA;
-			instanceValue[2] = instanceValue[2] > 0 ? instanceValue[2] : 0;
-			instanceValue[3] = (i > bestB)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestB).value(1)) / bestB
-					: instanceValue[1] / bestB;
-			instanceValue[3] = instanceValue[3] > 0 ? instanceValue[3] : 0;
-			instanceValue[4] = (i > bestC)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestC).value(1)) / bestC
-					: instanceValue[1] / bestC;
-			instanceValue[4] = instanceValue[4] > 0 ? instanceValue[4] : 0;
-			instanceValue[5] = (i > bestD)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestD).value(1)) / bestD
-					: instanceValue[1] / bestD;
-			instanceValue[5] = instanceValue[5] > 0 ? instanceValue[5] : 0;
-			instanceValue[6] = (i > bestE)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestE).value(1)) / bestE
-					: instanceValue[1] / bestE;
-			instanceValue[6] = instanceValue[6] > 0 ? instanceValue[6] : 0;
-			instanceValue[7] = (i > bestF)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestF).value(1)) / bestF
-					: instanceValue[1] / bestF;
-			instanceValue[7] = instanceValue[7] > 0 ? instanceValue[7] : 0;
-			instanceValue[8] = (i > bestG)
-					? (dataSet.instance(i - 1).value(1) - dataSet.instance(i - bestG).value(1)) / bestG
-					: instanceValue[1] / bestG;
-			instanceValue[8] = instanceValue[8] > 0 ? instanceValue[8] : 0;
-			instanceValue[9] = (i > 0) ? instanceValue[1] - dataSet.lastInstance().value(1) : instanceValue[1];
-			instanceValue[9] = instanceValue[9] > 0 ? instanceValue[9] : 0;
+			for (int j = 1; j <= 5; j++) {
+				instanceValue[j] = (i < 2) || data.get(i)[j].equals("") || data.get(i - 1)[j].equals("") ? Double.NaN
+						: Double.parseDouble(data.get(i)[j]) - Double.parseDouble(data.get(i - 1)[j]);
+				instanceValue[j] = instanceValue[j] > 0 ? instanceValue[j] : Double.NaN;
+			}
+			instanceValue[8] = (i < 2) || data.get(i)[8].equals("") || data.get(i - 1)[8].equals("") ? Double.NaN
+					: Double.parseDouble(data.get(i)[8]) - Double.parseDouble(data.get(i - 1)[8]);
+			instanceValue[8] = instanceValue[8] > 0 ? instanceValue[8] : Double.NaN;
+			for (int j = 6; j < data.get(i).length; j++) {
+				if (j != 8) {
+					instanceValue[j] = data.get(i)[j].equals("") ? Double.NaN : Double.parseDouble(data.get(i)[j]);
+				}
+			}
+			instanceValue[11] = Double.parseDouble(data.get(i + 1)[1]) - Double.parseDouble(data.get(i)[1]);
+			instanceValue[11] = instanceValue[11] > 0 ? instanceValue[11] : Double.NaN;
+			instanceValue[12] = (i + 7) < data.size()
+					? Double.parseDouble(data.get(i + 1)[1]) - Double.parseDouble(data.get(i)[1])
+					: Double.NaN;
+			instanceValue[12] = instanceValue[12] > 0 ? instanceValue[12] : Double.NaN;
+			instanceValue[13] = (i + 14) < data.size()
+					? Double.parseDouble(data.get(i + 1)[1]) - Double.parseDouble(data.get(i)[1])
+					: Double.NaN;
+			instanceValue[13] = instanceValue[13] > 0 ? instanceValue[13] : Double.NaN;
+			instanceValue[14] = (i + 21) < data.size()
+					? Double.parseDouble(data.get(i + 1)[1]) - Double.parseDouble(data.get(i)[1])
+					: Double.NaN;
+			instanceValue[14] = instanceValue[14] > 0 ? instanceValue[14] : Double.NaN;
 			dataSet.add(new DenseInstance(1.0, instanceValue));
 		}
 
-		dataSet.setClassIndex(9);
-		dataSet.deleteAttributeAt(8);
+		Instances dataSetJPlus1 = new Instances(dataSet);
+		dataSetJPlus1.deleteAttributeAt(12);
+		dataSetJPlus1.deleteAttributeAt(12);
+		dataSetJPlus1.deleteAttributeAt(12);
+		dataSetJPlus1.setClassIndex(11);
+		dataSetJPlus1.setRelationName("** Instances to predict J+1 **");
+		Instances dataSetJPlus7 = new Instances(dataSet);
+		dataSetJPlus7.deleteAttributeAt(11);
+		dataSetJPlus7.deleteAttributeAt(12);
+		dataSetJPlus7.deleteAttributeAt(12);
+		dataSetJPlus7.setClassIndex(11);
+		dataSetJPlus7.setRelationName("** Instances to predict J+7 **");
+		Instances dataSetJPlus14 = new Instances(dataSet);
+		dataSetJPlus14.deleteAttributeAt(11);
+		dataSetJPlus14.deleteAttributeAt(11);
+		dataSetJPlus14.deleteAttributeAt(12);
+		dataSetJPlus14.setClassIndex(11);
+		dataSetJPlus14.setRelationName("** Instances to predict J+14 **");
+		Instances dataSetJPlus21 = new Instances(dataSet);
+		dataSetJPlus21.deleteAttributeAt(11);
+		dataSetJPlus21.deleteAttributeAt(11);
+		dataSetJPlus21.deleteAttributeAt(11);
+		dataSetJPlus21.setClassIndex(11);
+		dataSetJPlus21.setRelationName("** Instances to predict J+21 **");
 
+		System.out.println(dataSet.relationName());
 		// Entraînement du modèle de régression linéaire
-		Instance dataToPredict = dataSet.remove(dataSet.size() - 1);
-		trainSet = dataSet.trainCV(5, 4);
-		testSet = dataSet.testCV(5, 4);
+		// J+1
+		Instance dataToPredictJPlus1 = dataSetJPlus1.remove(dataSet.size() - 1);
+		trainSet = dataSetJPlus1.trainCV(5, 4);
+		testSet = dataSetJPlus1.testCV(5, 4);
 
 		lrClassifier.buildClassifier(trainSet);
 
 		eval = new Evaluation(trainSet);
 		eval.evaluateModel(lrClassifier, testSet);
 
-		System.out.println(dataSet.relationName());
+		System.out.println(dataSetJPlus1.relationName());
 		System.out.println("** Linear Regression Evaluation **");
 		System.out.println(eval.toSummaryString());
 		System.out.print("=> The expression for the input data as per algorithm is : ");
 		System.out.println(lrClassifier);
 
-		double predictedValue = lrClassifier.classifyInstance(dataToPredict);
-		System.out.println("\nPrediction for " + dataToPredict.stringValue(0) + " : " + predictedValue);
-		System.out.println("\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(8));
+		double predictedValueJPlus1 = lrClassifier.classifyInstance(dataToPredictJPlus1);
+		System.out.println("\nPrediction for " + dataToPredictJPlus1.stringValue(0) + " : " + predictedValueJPlus1);
+		System.out.println("\nReal value for " + dataToPredictJPlus1.stringValue(0) + " : "
+				+ dataToPredictJPlus1.value(11) + "\n");
+
+		// J+7
+		Instance dataToPredictJPlus7 = dataSetJPlus7.remove(dataSet.size() - 7);
+		trainSet = dataSetJPlus7.trainCV(5, 4);
+		testSet = dataSetJPlus7.testCV(5, 4);
+
+		lrClassifier.buildClassifier(trainSet);
+
+		eval = new Evaluation(trainSet);
+		eval.evaluateModel(lrClassifier, testSet);
+
+		System.out.println(dataSetJPlus7.relationName());
+		System.out.println("** Linear Regression Evaluation **");
+		System.out.println(eval.toSummaryString());
+		System.out.print("=> The expression for the input data as per algorithm is : ");
+		System.out.println(lrClassifier);
+
+		double predictedValueJPlus7 = lrClassifier.classifyInstance(dataToPredictJPlus7);
+		System.out.println("\nPrediction for " + dataToPredictJPlus7.stringValue(0) + " : " + predictedValueJPlus7);
+		System.out.println("\nReal value for " + dataToPredictJPlus7.stringValue(0) + " : "
+				+ dataToPredictJPlus7.value(11) + "\n");
+
+		// J+14
+		Instance dataToPredictJPlus14 = dataSetJPlus14.remove(dataSet.size() - 14);
+		trainSet = dataSetJPlus14.trainCV(5, 4);
+		testSet = dataSetJPlus14.testCV(5, 4);
+
+		lrClassifier.buildClassifier(trainSet);
+
+		eval = new Evaluation(trainSet);
+		eval.evaluateModel(lrClassifier, testSet);
+
+		System.out.println(dataSetJPlus14.relationName());
+		System.out.println("** Linear Regression Evaluation **");
+		System.out.println(eval.toSummaryString());
+		System.out.print("=> The expression for the input data as per algorithm is : ");
+		System.out.println(lrClassifier);
+
+		double predictedValueJPlus14 = lrClassifier.classifyInstance(dataToPredictJPlus14);
+		System.out.println("\nPrediction for " + dataToPredictJPlus14.stringValue(0) + " : " + predictedValueJPlus14);
+		System.out.println("\nReal value for " + dataToPredictJPlus14.stringValue(0) + " : "
+				+ dataToPredictJPlus14.value(11) + "\n");
+
+		// J+21
+		Instance dataToPredictJPlus21 = dataSetJPlus21.remove(dataSet.size() - 21);
+		trainSet = dataSetJPlus21.trainCV(5, 4);
+		testSet = dataSetJPlus21.testCV(5, 4);
+
+		lrClassifier.buildClassifier(trainSet);
+
+		eval = new Evaluation(trainSet);
+		eval.evaluateModel(lrClassifier, testSet);
+
+		System.out.println(dataSetJPlus21.relationName());
+		System.out.println("** Linear Regression Evaluation **");
+		System.out.println(eval.toSummaryString());
+		System.out.print("=> The expression for the input data as per algorithm is : ");
+		System.out.println(lrClassifier);
+
+		double predictedValueJPlus21 = lrClassifier.classifyInstance(dataToPredictJPlus21);
+		System.out.println("\nPrediction for " + dataToPredictJPlus21.stringValue(0) + " : " + predictedValueJPlus21);
+		System.out.println("\nReal value for " + dataToPredictJPlus21.stringValue(0) + " : "
+				+ dataToPredictJPlus21.value(11) + "\n");
 
 		System.out.println("\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()));
 	}
