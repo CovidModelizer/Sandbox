@@ -2,11 +2,14 @@ package fr.covidmodelizer.machinelearning;
 
 import java.io.FileReader;
 import java.io.Writer;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,6 +22,7 @@ import com.opencsv.CSVWriter;
 
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.LinearRegression;
+
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -26,56 +30,34 @@ import weka.core.Instances;
 
 public class LinearRegressionModelCas {
 
-	final static LocalTime START = LocalTime.now();
+	private final static LocalTime START = LocalTime.now();
+	private final static String DATA_ORIGIN = "https://www.data.gouv.fr/fr/datasets/donnees-relatives-a-lepidemie-de-covid-19-en-france-vue-densemble/#_";
+	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
 
 	public static void main(String[] args) throws Exception {
 		CSVParser csvParser = new CSVParserBuilder().build();
-		FileReader fileReader = new FileReader("data.csv");
+		FileReader fileReader = new FileReader(DATA_ML_CAS_CSV);
 		CSVReader csvReader = new CSVReaderBuilder(fileReader).withCSVParser(csvParser).build();
 		List<String[]> data = csvReader.readAll();
 
 		// Préparation du data set
-		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-		atts.add(new Attribute("date", "yyyy-MM-dd"));
-		atts.add(new Attribute("nouveaux" + data.get(0)[1].substring(5)));
-		atts.add(new Attribute("nouveaux" + data.get(0)[2].substring(5)));
-		atts.add(new Attribute("nouveaux" + data.get(0)[3].substring(5)));
-		atts.add(new Attribute("nouveaux" + data.get(0)[4].substring(5)));
-		atts.add(new Attribute("nouveaux" + data.get(0)[5].substring(5)));
-		atts.add(new Attribute("total_" + data.get(0)[6]));
-		atts.add(new Attribute("total_" + data.get(0)[7]));
-		atts.add(new Attribute("nouveaux" + data.get(0)[8].substring(5)));
-		atts.add(new Attribute(data.get(0)[9]));
-		atts.add(new Attribute(data.get(0)[10]));
+		ArrayList<Attribute> atts = new ArrayList<Attribute>();
+		atts.add(new Attribute(data.get(0)[0], "yyyy-MM-dd"));
+		for (int i = 1; i < data.get(0).length; i++) {
+			atts.add(new Attribute(data.get(0)[i]));
+		}
 		atts.add(new Attribute("nouveaux cas J+N"));
 
-		String dataOrigin = "https://www.data.gouv.fr/fr/datasets/donnees-relatives-a-lepidemie-de-covid-19-en-france-vue-densemble/#_";
-		Instances dataSet = new Instances("** Instances from " + dataOrigin + " **", atts, 0);
-		dataSet.setClassIndex(11);
+		Instances dataSet = new Instances("** Instances from " + DATA_ORIGIN + " **", atts, 0);
+		dataSet.setClassIndex(atts.size() - 1);
 
-		for (int i = 0; i < data.size(); i++) {
+		for (int i = 1; i < data.size(); i++) {
 			double[] instanceValue = new double[dataSet.numAttributes()];
-			if (i == 0) {
-				instanceValue[0] = dataSet.attribute("date").parseDate("2020-03-01");
-				for (int j = 1; j < instanceValue.length - 1; j++) {
-					instanceValue[j] = Double.NaN;
-				}
-			} else {
-				instanceValue[0] = dataSet.attribute("date").parseDate(data.get(i)[0]);
-				for (int j = 1; j < data.get(i).length; j++) {
-					if (j == 6 || j == 7 || j > 8) {
-						instanceValue[j] = data.get(i)[j].equals("") ? Double.NaN : Double.parseDouble(data.get(i)[j]);
-					} else {
-						instanceValue[j] = (i < 2) || data.get(i)[j].equals("") || data.get(i - 1)[j].equals("")
-								? Double.NaN
-								: Double.parseDouble(data.get(i)[j]) - Double.parseDouble(data.get(i - 1)[j]);
-						instanceValue[j] = instanceValue[j] > 0 ? instanceValue[j] : Double.NaN;
-					}
-				}
-				for (int j = data.get(i).length; j < instanceValue.length; j++) {
-					instanceValue[j] = Double.NaN;
-				}
+			instanceValue[0] = dataSet.attribute("date").parseDate(data.get(i)[0]);
+			for (int j = 1; j < data.get(i).length; j++) {
+				instanceValue[j] = data.get(i)[j].equals("") ? Double.NaN : Double.parseDouble(data.get(i)[j]);
 			}
+			instanceValue[instanceValue.length - 1] = Double.NaN;
 			dataSet.add(new DenseInstance(1.0, instanceValue));
 		}
 
@@ -97,20 +79,17 @@ public class LinearRegressionModelCas {
 
 		// Entraînement du modèle de régression linéaire
 		for (int n = 1; n <= expanse; n++) {
-			for (int i = 0; i < data.size(); i++) {
-				realValue = (i == 0 && n == 1) ? Double.parseDouble(data.get(n)[1])
-						: (i + n) < data.size()
-								? Double.parseDouble(data.get(i + n)[1]) - Double.parseDouble(data.get(i + n - 1)[1])
-								: Double.NaN;
-				dataSet.instance(i).setValue(11, realValue);
+			for (int i = 0; i < dataSet.size(); i++) {
+				realValue = (i + n) >= dataSet.size() ? Double.NaN : dataSet.instance(i + n).value(5);
+				dataSet.instance(i).setValue(dataSet.numAttributes() - 1, realValue);
 			}
 
-			dataSet.renameAttribute(11, "nouveaux cas J+" + n);
+			dataSet.renameAttribute(dataSet.numAttributes() - 1, "nouveaux cas J+" + n);
 
 			dataToPredict = dataSet.lastInstance();
 
-			trainSet = dataSet.trainCV(5, 4, new Random());
-			testSet = dataSet.testCV(5, 4);
+			trainSet = dataSet.trainCV(5, 0, new Random());
+			testSet = dataSet.testCV(5, 0);
 
 			lrClassifier[n - 1] = new LinearRegression();
 			lrClassifier[n - 1].buildClassifier(trainSet);
@@ -137,9 +116,9 @@ public class LinearRegressionModelCas {
 			predictionData = allDataSet[i].get(allDataSet[i].size() - 1 - expanse);
 			predictedValue[i] = lrClassifier[i].classifyInstance(predictionData);
 			System.out.println("\nPrediction on " + predictionData.stringValue(0) + " : " + predictedValue[i]
-					+ " (value in dataset : " + predictionData.value(11) + ")");
+					+ " (value in dataset : " + predictionData.value(dataSet.numAttributes() - 1) + ")");
 			System.out.println(
-					"\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(1) + "\n");
+					"\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");
 		}
 
 		System.out.println("\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()));
@@ -151,9 +130,20 @@ public class LinearRegressionModelCas {
 
 		csvWriter.writeNext(new String[] { "date", "real value", "prediction value" });
 		for (int i = 0; i < expanse; i++) {
-			csvWriter.writeNext(new String[] { data.get(data.size() - expanse + i)[0],
-					String.valueOf((int) dataSet.instance(dataSet.size() - expanse + i).value(1)),
-					String.valueOf((int) Math.round(predictedValue[i])) });
+			predictionData = allDataSet[i].instance(dataSet.size() - (2 * expanse) - 1);
+			nextDate = LocalDate.parse(predictionData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+					.plusDays(i + 1);
+			csvWriter.writeNext(new String[] { nextDate.toString(),
+					String.valueOf((int) predictionData.value(dataSet.numAttributes() - 1)),
+					String.valueOf((int) lrClassifier[i].classifyInstance(predictionData)) });
+		}
+		for (int i = 0; i < expanse; i++) {
+			predictionData = allDataSet[i].instance(dataSet.size() - expanse - 1);
+			nextDate = LocalDate.parse(predictionData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+					.plusDays(i + 1);
+			csvWriter.writeNext(new String[] { nextDate.toString(),
+					String.valueOf((int) predictionData.value(dataSet.numAttributes() - 1)),
+					String.valueOf((int) lrClassifier[i].classifyInstance(predictionData)) });
 		}
 		for (int i = 0; i < expanse; i++) {
 			predictionData = allDataSet[i].lastInstance();
