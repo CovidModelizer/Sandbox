@@ -1,1 +1,1 @@
-# CovidModelizer_Sandbox
+# Covid_Modelizer_Sandbox
