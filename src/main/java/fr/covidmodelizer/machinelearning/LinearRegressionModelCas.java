@@ -55,7 +55,7 @@ public class LinearRegressionModelCas {
 			double[] instanceValue = new double[dataSet.numAttributes()];
 			instanceValue[0] = dataSet.attribute("date").parseDate(data.get(i)[0]);
 			for (int j = 1; j < data.get(i).length; j++) {
-				instanceValue[j] = data.get(i)[j].equals("") ? Double.NaN : Double.parseDouble(data.get(i)[j]);
+				instanceValue[j] = data.get(i)[j].isEmpty() ? Double.NaN : Double.parseDouble(data.get(i)[j]);
 			}
 			instanceValue[instanceValue.length - 1] = Double.NaN;
 			dataSet.add(new DenseInstance(1.0, instanceValue));
@@ -74,7 +74,6 @@ public class LinearRegressionModelCas {
 
 		Instance dataToPredict = null;
 		Instance predictionData = null;
-		double[] predictedValue = new double[expanse];
 		LocalDate nextDate = null;
 
 		// Entraînement du modèle de régression linéaire
@@ -86,8 +85,6 @@ public class LinearRegressionModelCas {
 
 			dataSet.renameAttribute(dataSet.numAttributes() - 1, "nouveaux cas J+" + n);
 
-			dataToPredict = dataSet.lastInstance();
-
 			trainSet = dataSet.trainCV(5, 0, new Random());
 			testSet = dataSet.testCV(5, 0);
 
@@ -98,7 +95,6 @@ public class LinearRegressionModelCas {
 			eval[n - 1].evaluateModel(lrClassifier[n - 1], testSet);
 
 			predictionData = dataSet.get(dataSet.size() - 1 - n);
-			predictedValue[n - 1] = lrClassifier[n - 1].classifyInstance(predictionData);
 
 			allDataSet[n - 1] = new Instances(dataSet);
 		}
@@ -114,11 +110,19 @@ public class LinearRegressionModelCas {
 			System.out.println(lrClassifier[i]);
 
 			predictionData = allDataSet[i].get(allDataSet[i].size() - 1 - expanse);
-			predictedValue[i] = lrClassifier[i].classifyInstance(predictionData);
-			System.out.println("\nPrediction on " + predictionData.stringValue(0) + " : " + predictedValue[i]
-					+ " (value in dataset : " + predictionData.value(dataSet.numAttributes() - 1) + ")");
+			System.out.println("\nPrediction on " + predictionData.stringValue(0) + " : "
+					+ lrClassifier[i].classifyInstance(predictionData) + " (value in dataset : "
+					+ predictionData.value(dataSet.numAttributes() - 1) + ")");
 			System.out.println(
 					"\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");
+
+//			System.out.println("Coefficients :\n");
+//			for (int j = 0; j < allDataSet[i].numAttributes(); j++) {
+//				System.out.println(lrClassifier[i].coefficients()[j] + " | " + allDataSet[i].attribute(j).name() + "\n");
+//			}
+//			for (int j = allDataSet[i].numAttributes(); j < lrClassifier[i].coefficients().length; j++) {
+//				System.out.println(lrClassifier[i].coefficients()[j] + "\n");
+//			}
 		}
 
 		System.out.println("\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()));
