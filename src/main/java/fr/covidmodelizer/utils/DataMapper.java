@@ -5,10 +5,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,13 +35,18 @@ public class DataMapper {
 
 	private final static int CONNECTION_TIMEOUT = 10 * 1000;
 	private final static int READ_TIMEOUT = 5 * 1000;
+
 	private final static String DATA_URL = "https://www.data.gouv.fr/fr/datasets/r/d2671c6c-c0eb-4e12-b69a-8e8f87fc224c";
-	private final static String R0_URL = "https://www.data.gouv.fr/fr/datasets/r/381a9472-ce83-407d-9a64-1b8c23af83df";
+	private final static String INDICATOR_URL = "https://www.data.gouv.fr/fr/datasets/r/381a9472-ce83-407d-9a64-1b8c23af83df";
+
 	private final static String DATA_JSON = "src/main/resources/all-data.json";
-	private final static String TMP_CSV = "src/main/resources/tmp-data.csv";
+
 	private final static String DATA_CSV = "src/main/resources/all-data.csv";
-	private final static String R0_CSV = "src/main/resources/indicator.csv";
+	private final static String INDICATOR_CSV = "src/main/resources/indicator.csv";
+
 	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
+	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
+	private final static String DATA_SIR_CAS_CSV = "src/main/resources/sir-data-cas.csv";
 
 	public static void main(String[] args) throws MalformedURLException, IOException, CsvException {
 		// To automatically download the data json file
@@ -52,37 +55,43 @@ public class DataMapper {
 		parseAllDataToCSV();
 		// To custom the data set for the class LinearRegressionModelCas
 		prepareDataForMachineLearningCas();
+		// To custom the data set for the class SIRModelCas
+		prepareDataForSIRCas();
+		// To custom the data set for the class LinearRegressionModelVaccin
+		prepareDataForMachineLearningVaccin();
 	}
 
 	public static void downloadData() throws MalformedURLException, IOException {
 		FileUtils.copyURLToFile(new URL(DATA_URL), new File(DATA_JSON), CONNECTION_TIMEOUT, READ_TIMEOUT);
-		FileUtils.copyURLToFile(new URL(R0_URL), new File(R0_CSV), CONNECTION_TIMEOUT, READ_TIMEOUT);
+		FileUtils.copyURLToFile(new URL(INDICATOR_URL), new File(INDICATOR_CSV), CONNECTION_TIMEOUT, READ_TIMEOUT);
 	}
 
 	public static void parseAllDataToCSV() throws JsonProcessingException, IOException, CsvException {
 		JsonNode jsonTree = new ObjectMapper().readTree(new File(DATA_JSON));
-		Builder csvSchemaBuilder = CsvSchema.builder();
-		JsonNode[] objectToInitColumns = { jsonTree.get(41), jsonTree.get(326) };
+		Builder csvBuilder = CsvSchema.builder();
+		JsonNode[] jsonColumns = { jsonTree.get(41), jsonTree.get(326) };
 		TreeSet<String> columnFields = new TreeSet<String>(new Comparator<String>() {
 			@Override
 			public int compare(String s1, String s2) {
 				return (!s1.equals(s2) && s1.length() == s2.length()) ? 1 : s1.length() - s2.length();
 			}
 		});
-		for (JsonNode j : objectToInitColumns) {
+		for (JsonNode j : jsonColumns) {
 			j.fieldNames().forEachRemaining(fieldName -> {
 				columnFields.add(fieldName);
 			});
 		}
-		csvSchemaBuilder.addColumns(columnFields, ColumnType.STRING);
-		CsvMapper csvMapper = new CsvMapper();
-		csvMapper.writerFor(JsonNode.class).with(csvSchemaBuilder.build().withHeader()).writeValue(new File(TMP_CSV),
-				jsonTree);
+		csvBuilder.addColumns(columnFields, ColumnType.STRING);
 
-		List<String[]> r0data = new CSVReaderBuilder(new FileReader(R0_CSV))
+		String tmp_csv = "src/main/resources/tmp-data.csv";
+		CsvMapper csvMapper = new CsvMapper();
+		CsvSchema csvSchema = csvBuilder.build().withHeader();
+		csvMapper.writerFor(JsonNode.class).with(csvSchema).writeValue(new File(tmp_csv), jsonTree);
+
+		List<String[]> r0data = new CSVReaderBuilder(new FileReader(INDICATOR_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVReader csvReader = new CSVReaderBuilder(new FileReader(TMP_CSV))
+		CSVReader csvReader = new CSVReaderBuilder(new FileReader(tmp_csv))
 				.withCSVParser(new CSVParserBuilder().build()).build();
 
 		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_CSV), CSVWriter.DEFAULT_SEPARATOR,
@@ -104,37 +113,34 @@ public class DataMapper {
 			csvWriter.writeNext(array);
 		}
 		csvWriter.close();
-		new File(TMP_CSV).delete();
+
+		new File(tmp_csv).delete();
 	}
 
 	public static void prepareDataForMachineLearningCas() throws IOException, CsvException {
-		CSVReader csvReader = new CSVReaderBuilder(new FileReader(DATA_CSV))
-				.withCSVParser(new CSVParserBuilder().build()).build();
-		List<String[]> data = csvReader.readAll();
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		Writer writer = Files.newBufferedWriter(Paths.get(DATA_ML_CAS_CSV));
-
-		CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER,
-				CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
-
-		String[] header = new String[14];
-		header[0] = data.get(0)[0];
-		header[1] = "nouveaux_" + data.get(0)[1];
-		header[2] = "nouveaux_" + data.get(0)[2];
-		header[3] = "nouveaux_" + data.get(0)[3];
-		header[4] = "total_" + data.get(0)[4];
-		header[5] = "nouveaux_" + data.get(0)[5];
-		header[6] = "total_" + data.get(0)[6];
-		header[7] = "nouveaux_" + data.get(0)[7];
-		header[8] = "nouveaux_" + data.get(0)[8];
-		header[9] = "nouveaux_" + data.get(0)[9];
-		header[10] = data.get(0)[11];
-		header[11] = data.get(0)[16];
-		header[12] = data.get(0)[18];
-		header[13] = "nouveau_" + data.get(0)[25];
-		csvWriter.writeNext(header);
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_ML_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[14];
+		content[0] = data.get(0)[0];
+		content[1] = "nouveaux_" + data.get(0)[1];
+		content[2] = "nouveaux_" + data.get(0)[2];
+		content[3] = "nouveaux_" + data.get(0)[3];
+		content[4] = "total_" + data.get(0)[4];
+		content[5] = "nouveaux_" + data.get(0)[5];
+		content[6] = "total_" + data.get(0)[6];
+		content[7] = "nouveaux_" + data.get(0)[7];
+		content[8] = "nouveaux_" + data.get(0)[8];
+		content[9] = "nouveaux_" + data.get(0)[9];
+		content[10] = data.get(0)[11];
+		content[11] = data.get(0)[16];
+		content[12] = data.get(0)[18];
+		content[13] = "nouveau_" + data.get(0)[25];
+		csvWriter.writeNext(content);
+
 		int idx;
 		for (int i = 0; i < data.size(); i++) {
 			if (i == 0) {
@@ -154,14 +160,92 @@ public class DataMapper {
 												- Integer.parseInt(data.get(i - 1)[j]));
 						content[idx] = content[idx].isEmpty() ? content[idx]
 								: Integer.parseInt(content[idx]) < 0 ? "" : content[idx];
-					} else if (j == 25 && i > 15) {
-						content[++idx] = "";
-						for (int d = 0; d < 15; d++) {
-							if (!(data.get(i - d)[j].isEmpty() || data.get(i - d)[j].equals("r0"))) {
-								content[idx] = data.get(i - d)[j];
-								break;
-							}
-						}
+					}
+				}
+			}
+			content[13] = "";
+			if (i > 16) {
+				for (int d = 0; d < 15; d++) {
+					if (!(data.get(i - d)[25].isEmpty())) {
+						content[13] = data.get(i - d)[25];
+						break;
+					}
+				}
+			}
+			csvWriter.writeNext(content);
+		}
+		csvWriter.close();
+	}
+
+	public static void prepareDataForSIRCas() throws IOException, CsvException {
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
+
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SIR_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+
+		String[] content = new String[5];
+		content[0] = data.get(0)[0];
+		content[1] = "S";
+		content[2] = "I";
+		content[3] = "R";
+		content[4] = data.get(0)[25];
+		csvWriter.writeNext(content);
+
+		int N = 67000000;
+		int daysToRecover = 10;
+
+		for (int i = 92; i < data.size(); i++) {
+			content[0] = data.get(i)[0];
+			content[3] = data.get(i - daysToRecover)[5];
+			content[2] = String.valueOf(Integer.parseInt(data.get(i)[5]) - Integer.parseInt(content[3]));
+			content[1] = String.valueOf(N - Integer.parseInt(content[2]) - Integer.parseInt(content[3]));
+			content[4] = "";
+			for (int d = 0; d < 15; d++) {
+				if (!(data.get(i - d)[25].isEmpty())) {
+					content[4] = data.get(i - d)[25];
+					break;
+				}
+			}
+			csvWriter.writeNext(content);
+		}
+		csvWriter.close();
+	}
+
+	public static void prepareDataForMachineLearningVaccin() throws IOException, CsvException {
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
+
+		Writer writer = Files.newBufferedWriter(Paths.get(DATA_ML_VACCIN_CSV));
+
+		CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER,
+				CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+
+		String[] content = new String[9];
+		content[0] = data.get(0)[0];
+		content[1] = data.get(0)[12];
+		content[2] = data.get(0)[13];
+		content[3] = data.get(0)[14];
+		content[4] = data.get(0)[17];
+		content[5] = data.get(0)[18];
+		content[6] = data.get(0)[19];
+		content[7] = data.get(0)[20];
+		content[8] = data.get(0)[21];
+		csvWriter.writeNext(content);
+
+		int idx;
+		for (int i = 300; i < data.size(); i++) {
+			if (i == 300) {
+				content[0] = "2020-12-26";
+				for (int j = 1; j < content.length - 1; j++) {
+					content[j] = "";
+				}
+			} else {
+				content[0] = data.get(i)[0];
+				idx = 0;
+				for (int j = 1; j < data.get(i).length; j++) {
+					if ((j > 11 && j < 15) || (j > 16 && j < 22)) {
+						content[++idx] = data.get(i)[j].isEmpty() ? "" : data.get(i)[j];
 					}
 				}
 			}
