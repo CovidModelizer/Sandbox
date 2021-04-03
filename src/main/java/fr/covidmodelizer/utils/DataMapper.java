@@ -47,6 +47,7 @@ public class DataMapper {
 	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
 	private final static String DATA_SIR_CAS_CSV = "src/main/resources/sir-data-cas.csv";
 	private final static String DATA_LIN_CAS_CSV = "src/main/resources/lin-data-cas.csv";
+	private final static String DATA_SVIR_CAS_CSV = "src/main/resources/svir-data-cas.csv";
 
 	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
 	private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccin.csv";
@@ -66,6 +67,8 @@ public class DataMapper {
 		prepareDataForMachineLearningVaccin();
 		// To custom the data set for the class LinearModelVaccin
 		prepareDataForLinearVaccin();
+		// To custom the data set for the class LinearModelVaccin
+		prepareDataForSVIRCas();
 	}
 
 	public static void downloadData() throws MalformedURLException, IOException {
@@ -305,6 +308,51 @@ public class DataMapper {
 			} else {
 				content[0] = data.get(i)[0];
 				content[1] = data.get(i)[15];
+			}
+			csvWriter.writeNext(content);
+		}
+		csvWriter.close();
+	}
+
+	public static void prepareDataForSVIRCas() throws IOException, CsvException {
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
+
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SVIR_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+
+		String[] content = new String[7];
+		content[0] = data.get(0)[0];
+		content[1] = "S";
+		content[2] = "I";
+		content[3] = "R";
+		content[4] = data.get(0)[25];
+		content[5] = data.get(0)[18];
+		content[6] = "Taux de vaccination journalier";
+//		content[7] = "Taux de vaccination journalier moyenne 7 jours";
+ 		csvWriter.writeNext(content);
+
+		int N = 67000000;
+		int daysToRecover = 10;
+		double sum = 0;
+
+		for (int i = 301; i < data.size(); i++) {
+			content[0] = data.get(i)[0];
+			content[3] = data.get(i - daysToRecover)[5];
+			content[2] = String.valueOf(Integer.parseInt(data.get(i)[5]) - Integer.parseInt(content[3]));
+			content[1] = String.valueOf(N - Integer.parseInt(content[2]) - Integer.parseInt(content[3]));
+			content[4] = "";
+//			content[5] = data.get(i)[15];
+//			content[6] = String.valueOf(((int)(Double.parseDouble(content[5])/N*100))/100.);
+			content[5] = data.get(i)[18];
+			content[6] = String.valueOf(((int)(Double.parseDouble(content[5])/N*10000))/10000.);
+//			content[7] = "";
+//			sum = sum + Double.parseDouble(content[6]);
+			for (int d = 0; d < 15; d++) {
+				if (!(data.get(i - d)[25].isEmpty())) {
+					content[4] = data.get(i - d)[25];
+					break;
+				}
 			}
 			csvWriter.writeNext(content);
 		}
