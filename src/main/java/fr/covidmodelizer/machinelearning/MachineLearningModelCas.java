@@ -20,10 +20,9 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class LinearRegressionModelCas {
+public class MachineLearningModelCas {
 
 	private final static LocalTime START = LocalTime.now();
-	private final static String DATA_ORIGIN = "https://www.data.gouv.fr/fr/datasets/donnees-relatives-a-lepidemie-de-covid-19-en-france-vue-densemble/#_";
 	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
 	private final static String ML_CAS_PREDICTION = "ml-cas-prediction.csv";
 
@@ -39,7 +38,7 @@ public class LinearRegressionModelCas {
 		}
 		atts.add(new Attribute("nouveaux cas J+N"));
 
-		Instances dataSet = new Instances("** Instances from " + DATA_ORIGIN + " **", atts, 0);
+		Instances dataSet = new Instances("*** DATASET ***", atts, 0);
 		dataSet.setClassIndex(atts.size() - 1);
 
 		for (int i = 1; i < data.size(); i++) {
@@ -80,12 +79,11 @@ public class LinearRegressionModelCas {
 			testSet = dataSet.testCV(5, 0);
 
 			lrClassifier[n - 1] = new LinearRegression();
+			lrClassifier[n - 1].setOptions(new String[] { "-R", "1" });
 			lrClassifier[n - 1].buildClassifier(trainSet);
 
 			eval[n - 1] = new Evaluation(trainSet);
 			eval[n - 1].evaluateModel(lrClassifier[n - 1], testSet);
-
-			predictiveData = dataSet.get(dataSet.size() - 1 - n);
 
 			allDataSet[n - 1] = new Instances(dataSet);
 		}
@@ -94,7 +92,6 @@ public class LinearRegressionModelCas {
 		for (int i = 0; i < allDataSet.length; i++) {
 			dataToPredict = allDataSet[i].get(allDataSet[i].size() - expanse + i);
 
-			System.out.println(allDataSet[i].relationName());
 			System.out.println("** Linear Regression Evaluation **");
 			System.out.println(eval[i].toSummaryString());
 			System.out.print("=> The expression for the input data as per algorithm is : ");
@@ -106,6 +103,12 @@ public class LinearRegressionModelCas {
 					+ predictiveData.value(dataSet.numAttributes() - 1) + ")");
 			System.out.println(
 					"\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");
+
+			for (int j = 1; j < dataSet.numAttributes(); j++) {
+				if (lrClassifier[i].coefficients()[j] != 0.0) {
+					System.out.println(dataSet.attribute(j).name() + " : " + lrClassifier[i].coefficients()[j]);
+				}
+			}
 		}
 
 		System.out.println("\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()));

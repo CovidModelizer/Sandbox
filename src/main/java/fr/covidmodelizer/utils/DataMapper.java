@@ -45,20 +45,27 @@ public class DataMapper {
 	private final static String INDICATOR_CSV = "src/main/resources/indicator.csv";
 
 	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
-	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
 	private final static String DATA_SIR_CAS_CSV = "src/main/resources/sir-data-cas.csv";
+	private final static String DATA_LIN_CAS_CSV = "src/main/resources/lin-data-cas.csv";
+
+	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
+	private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccin.csv";
 
 	public static void main(String[] args) throws MalformedURLException, IOException, CsvException {
-		// To automatically download the data json file
-		downloadData();
+		// To automatically download data and indicators
+		// downloadData();
 		// To parse data from json format to csv
 		parseAllDataToCSV();
-		// To custom the data set for the class LinearRegressionModelCas
+		// To custom the data set for the class MachineLearningModelCas
 		prepareDataForMachineLearningCas();
 		// To custom the data set for the class SIRModelCas
 		prepareDataForSIRCas();
-		// To custom the data set for the class LinearRegressionModelVaccin
+		// To custom the data set for the class LinearModelCas
+		prepareDataForLinearCas();
+		// To custom the data set for the class MachineLearningModelVaccin
 		prepareDataForMachineLearningVaccin();
+		// To custom the data set for the class LinearModelVaccin
+		prepareDataForLinearVaccin();
 	}
 
 	public static void downloadData() throws MalformedURLException, IOException {
@@ -212,6 +219,31 @@ public class DataMapper {
 		csvWriter.close();
 	}
 
+	public static void prepareDataForLinearCas() throws IOException, CsvException {
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
+
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+
+		String[] content = new String[2];
+		content[0] = data.get(0)[0];
+		content[1] = data.get(0)[5];
+		csvWriter.writeNext(content);
+
+		for (int i = 0; i < data.size(); i++) {
+			if (i == 0) {
+				content[0] = "2020-03-01";
+				content[1] = "";
+			} else {
+				content[0] = data.get(i)[0];
+				content[1] = data.get(i)[5];
+			}
+			csvWriter.writeNext(content);
+		}
+		csvWriter.close();
+	}
+
 	public static void prepareDataForMachineLearningVaccin() throws IOException, CsvException {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
@@ -237,7 +269,7 @@ public class DataMapper {
 		for (int i = 300; i < data.size(); i++) {
 			if (i == 300) {
 				content[0] = "2020-12-26";
-				for (int j = 1; j < content.length - 1; j++) {
+				for (int j = 1; j < content.length; j++) {
 					content[j] = "";
 				}
 			} else {
@@ -248,6 +280,31 @@ public class DataMapper {
 						content[++idx] = data.get(i)[j].isEmpty() ? "" : data.get(i)[j];
 					}
 				}
+			}
+			csvWriter.writeNext(content);
+		}
+		csvWriter.close();
+	}
+
+	public static void prepareDataForLinearVaccin() throws IOException, CsvException {
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
+				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
+
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_VACCIN_CSV), CSVWriter.DEFAULT_SEPARATOR,
+				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
+
+		String[] content = new String[2];
+		content[0] = data.get(0)[0];
+		content[1] = data.get(0)[15];
+		csvWriter.writeNext(content);
+
+		for (int i = 300; i < data.size(); i++) {
+			if (i == 300) {
+				content[0] = "2020-12-26";
+				content[1] = "";
+			} else {
+				content[0] = data.get(i)[0];
+				content[1] = data.get(i)[15];
 			}
 			csvWriter.writeNext(content);
 		}
