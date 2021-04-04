@@ -16,6 +16,7 @@ log/
 target/
 
 # Compiled class file
+bin/
 *.class
 
 # Log file
