@@ -329,7 +329,6 @@ public class DataMapper {
 		content[4] = data.get(0)[25];
 		content[5] = data.get(0)[18];
 		content[6] = "Taux de vaccination journalier";
-//		content[7] = "Taux de vaccination journalier moyenne 7 jours";
  		csvWriter.writeNext(content);
 
 		int N = 67000000;
@@ -342,12 +341,8 @@ public class DataMapper {
 			content[2] = String.valueOf(Integer.parseInt(data.get(i)[5]) - Integer.parseInt(content[3]));
 			content[1] = String.valueOf(N - Integer.parseInt(content[2]) - Integer.parseInt(content[3]));
 			content[4] = "";
-//			content[5] = data.get(i)[15];
-//			content[6] = String.valueOf(((int)(Double.parseDouble(content[5])/N*100))/100.);
 			content[5] = data.get(i)[18];
 			content[6] = String.valueOf(((int)(Double.parseDouble(content[5])/N*10000))/10000.);
-//			content[7] = "";
-//			sum = sum + Double.parseDouble(content[6]);
 			for (int d = 0; d < 15; d++) {
 				if (!(data.get(i - d)[25].isEmpty())) {
 					content[4] = data.get(i - d)[25];
