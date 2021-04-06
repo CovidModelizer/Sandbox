@@ -92,7 +92,7 @@ public class MachineLearningModelCas {
 		for (int i = 0; i < allDataSet.length; i++) {
 			dataToPredict = allDataSet[i].get(allDataSet[i].size() - expanse + i);
 
-			System.out.println("** Linear Regression Evaluation **");
+			System.out.println("\n** Linear Regression Evaluation **");
 			System.out.println(eval[i].toSummaryString());
 			System.out.print("=> The expression for the input data as per algorithm is : ");
 			System.out.println(lrClassifier[i]);
@@ -137,8 +137,9 @@ public class MachineLearningModelCas {
 			predictiveData = allDataSet[i].lastInstance();
 			nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);
-			csvWriter.writeNext(new String[] { nextDate.toString(), "",
-					String.valueOf((int) lrClassifier[i].classifyInstance(predictiveData)) });
+			csvWriter.writeNext(
+					new String[] { nextDate.toString(), "", lrClassifier[i].classifyInstance(predictiveData) < 0 ? "0"
+							: String.valueOf((int) lrClassifier[i].classifyInstance(predictiveData)) });
 		}
 		csvWriter.close();
 	}

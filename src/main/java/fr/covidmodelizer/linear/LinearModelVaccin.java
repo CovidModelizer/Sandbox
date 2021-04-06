@@ -93,7 +93,8 @@ public class LinearModelVaccin {
 			nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);
 			calculationValue = lrClassifier.coefficients()[1] * calculationValue + lrClassifier.coefficients()[2];
-			csvWriter.writeNext(new String[] { nextDate.toString(), "", String.valueOf((int) calculationValue) });
+			csvWriter.writeNext(new String[] { nextDate.toString(), "",
+					calculationValue < 0 ? "0" : String.valueOf((int) calculationValue) });
 		}
 		csvWriter.close();
 	}

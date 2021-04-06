@@ -38,7 +38,7 @@ public class SIRModelCas {
 		int firstDay = data.size() - 22;
 
 		// Initialisation
-		double N = 67000000.0;
+		final double N = 67000000.0;
 		double initialS = Double.parseDouble(data.get(firstDay)[1]);
 		double initialI = Double.parseDouble(data.get(firstDay)[2]);
 		double initialR = Double.parseDouble(data.get(firstDay)[3]);
@@ -52,7 +52,7 @@ public class SIRModelCas {
 		int expanse = 21;
 
 		// Calcul du SIR
-		double[] predictiveSIR = null; // SIRCalculation(N, initialS, initialI, initialR, gamma, beta);
+		double[] predictiveSIR = null;
 
 		for (int i = 0; i < expanse; i++) {
 			initialS = Double.parseDouble(data.get(firstDay + i)[1]);
@@ -98,16 +98,17 @@ public class SIRModelCas {
 			predictiveSIR = SIRCalculation(N, predictiveSIR[0], predictiveSIR[1], predictiveSIR[2], gamma, beta);
 			nextDate = LocalDate.parse(data.get(data.size() - 1)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);
-			csvWriter.writeNext(new String[] { nextDate.toString(), "", String.valueOf((int) predictiveSIR[1]) });
+			csvWriter.writeNext(new String[] { nextDate.toString(), "",
+					predictiveSIR[1] < 0 ? "0" : String.valueOf((int) predictiveSIR[1]) });
 		}
 		csvWriter.close();
 	}
 
 	public static double[] SIRCalculation(double N, double S0, double I0, double R0, double gamma, double beta) {
 		/********* Parameters **********/
-		// S' = -beta * S * I
-		// I' = beta * S * I - gamma * I
-		// R' = gamma * I
+		// dS = - beta * S * I
+		// dI = beta * S * I - gamma * I
+		// dR = gamma * I
 
 		double S = S0 - (beta / N) * S0 * I0;
 		double I = I0 + (beta / N) * S0 * I0 - gamma * I0;
