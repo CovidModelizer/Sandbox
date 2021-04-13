@@ -16,11 +16,11 @@ import com.opencsv.exceptions.CsvException;
 public class SVIRModelVaccin {
 
 	private final static LocalTime START = LocalTime.now();
-	private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/svir-data-vaccin.csv";
-	private final static String SVIR_VACCIN_PREDICTION = "svir-vaccin-prediction.csv";
+	private final static String DATA_SVIR_VAC_CSV = "src/main/resources/svir-data-vaccination.csv";
+	private final static String SVIR_VACCIN_PREDICTION = "svir-vaccination-prediction.csv";
 
 	public static void main(String[] args) throws IOException, CsvException {
-		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SVIR_VACCIN_CSV))
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SVIR_VAC_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
 		// Details des données
@@ -92,7 +92,7 @@ public class SVIRModelVaccin {
 					.parse(data.get(data.size() - (2 * expanse) - 1 + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(1);
 			csvWriter.writeNext(new String[] { nextDate.toString(), data.get(data.size() - (2 * expanse) + i)[2],
-					String.valueOf((int) predictiveSVIR[1]) });
+					predictiveSVIR[1] < 0 ? "0" : String.valueOf((int) predictiveSVIR[1]) });
 		}
 		predictiveSVIR[0] = Double.parseDouble(data.get(data.size() - 1)[1]);
 		predictiveSVIR[1] = Double.parseDouble(data.get(data.size() - 1)[2]);

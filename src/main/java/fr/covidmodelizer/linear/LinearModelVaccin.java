@@ -23,11 +23,11 @@ import weka.core.Instances;
 public class LinearModelVaccin {
 
 	private final static LocalTime START = LocalTime.now();
-	private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccin.csv";
-	private final static String LIN_VACCIN_PREDICTION = "lin-vaccin-prediction.csv";
+	private final static String DATA_LIN_VAC_CSV = "src/main/resources/lin-data-vaccination.csv";
+	private final static String LIN_VACCIN_PREDICTION = "lin-vaccination-prediction.csv";
 
 	public static void main(String[] args) throws Exception {
-		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_LIN_VACCIN_CSV))
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_LIN_VAC_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
 		// Préparation du data set
@@ -48,22 +48,40 @@ public class LinearModelVaccin {
 			dataSet.add(new DenseInstance(1.0, instanceValue));
 		}
 
-		Instances trainSet = dataSet.trainCV(5, 0, new Random());
-		Instances testSet = dataSet.testCV(5, 0);
+		// Variables utiles à l'entraînement du modèle de prédiction
+		int expanse = 21;
 
-		LinearRegression lrClassifier = new LinearRegression();
+		double calculationValue = Double.NaN;
+
+		Instances trainSet = null;
+		Instances testSet = null;
+
+		LinearRegression lrClassifier = null;
+
+		Evaluation eval = null;
+
+		Instance predictiveData = null;
+
+		LocalDate nextDate = null;
+
+		// Entraînement du modèle de régression linéaire à une variable
+		trainSet = dataSet.trainCV(5, 0, new Random());
+		testSet = dataSet.testCV(5, 0);
+
+		lrClassifier = new LinearRegression();
 		lrClassifier.setOptions(new String[] { "-R", "1" });
 		lrClassifier.buildClassifier(trainSet);
 
-		Evaluation eval = new Evaluation(trainSet);
+		eval = new Evaluation(trainSet);
 		eval.evaluateModel(lrClassifier, testSet);
 
+		// Prédiction
 		System.out.println("** Linear Regression Evaluation **");
 		System.out.println(eval.toSummaryString());
 		System.out.print("=> The expression for the input data as per algorithm is : ");
 		System.out.println(lrClassifier);
 
-		Instance predictiveData = dataSet.get(dataSet.size() - 2);
+		predictiveData = dataSet.get(dataSet.size() - 2);
 		System.out.println("\nPrediction on " + predictiveData.stringValue(0) + " : "
 				+ lrClassifier.classifyInstance(predictiveData) + " (value in dataset : "
 				+ predictiveData.value(dataSet.numAttributes() - 1) + ")");
@@ -75,9 +93,6 @@ public class LinearModelVaccin {
 		CSVWriter csvWriter = new CSVWriter(new FileWriter(LIN_VACCIN_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
-		int expanse = 21;
-		LocalDate nextDate = null;
-
 		csvWriter.writeNext(new String[] { "date", "real value", "prediction value" });
 		for (int i = 0; i < (2 * expanse); i++) {
 			predictiveData = dataSet.instance(dataSet.size() - (2 * expanse) - 1 + i);
@@ -85,10 +100,11 @@ public class LinearModelVaccin {
 					.plusDays(1);
 			csvWriter.writeNext(new String[] { nextDate.toString(),
 					String.valueOf((int) predictiveData.value(dataSet.numAttributes() - 1)),
-					String.valueOf((int) lrClassifier.classifyInstance(predictiveData)) });
+					lrClassifier.classifyInstance(predictiveData) < 0 ? "0"
+							: String.valueOf((int) lrClassifier.classifyInstance(predictiveData)) });
 		}
 		predictiveData = dataSet.lastInstance();
-		double calculationValue = predictiveData.value(1);
+		calculationValue = predictiveData.value(1);
 		for (int i = 0; i < expanse; i++) {
 			nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);

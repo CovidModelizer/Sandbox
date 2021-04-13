@@ -16,11 +16,11 @@ import com.opencsv.exceptions.CsvException;
 public class SIRModelCas {
 
 	private final static LocalTime START = LocalTime.now();
-	private final static String DATA_SIR_CAS_CSV = "src/main/resources/sir-data-cas.csv";
-	private final static String SIR_CAS_PREDICTION = "sir-cas-prediction.csv";
+	private final static String DATA_SIR_INF_CSV = "src/main/resources/sir-data-infection.csv";
+	private final static String SIR_CAS_PREDICTION = "sir-infection-prediction.csv";
 
 	public static void main(String[] args) throws IOException, CsvException {
-		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SIR_CAS_CSV))
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SIR_INF_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
 		// Details des données
@@ -43,8 +43,8 @@ public class SIRModelCas {
 		double initialI = Double.parseDouble(data.get(firstDay)[2]);
 		double initialR = Double.parseDouble(data.get(firstDay)[3]);
 		double r0 = Double.parseDouble(data.get(firstDay)[4]);
-		double D = 10.0;
-		double gamma = 1.0 / D;
+		double d = 10.0;
+		double gamma = 1.0 / d;
 		double beta = r0 * gamma;
 		System.out.println("gamma : " + gamma);
 		System.out.println("beta : " + beta);
@@ -87,7 +87,7 @@ public class SIRModelCas {
 					.parse(data.get(data.size() - (2 * expanse) - 1 + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(1);
 			csvWriter.writeNext(new String[] { nextDate.toString(), data.get(data.size() - (2 * expanse) + i)[2],
-					String.valueOf((int) predictiveSIR[1]) });
+					predictiveSIR[1] < 0 ? "0" : String.valueOf((int) predictiveSIR[1]) });
 		}
 		predictiveSIR[0] = Double.parseDouble(data.get(data.size() - 1)[1]);
 		predictiveSIR[1] = Double.parseDouble(data.get(data.size() - 1)[2]);
