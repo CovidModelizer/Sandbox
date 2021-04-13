@@ -24,6 +24,6 @@
 keytool -import -file <certificat> -alias <donner un nom au certificat> -keystore <path vers le fichier cacerts>
 ```
 * Récupérer les dernières données pour l'entraînement des modèles : 
-    * Lancer classe DataMapper
+    * Lancer la classe DataMapper
 * Générer les prédictions : 
     * Lancer les classes des différents modèles prédictifs
