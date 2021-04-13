@@ -44,17 +44,17 @@ public class DataMapper {
 	private final static String DATA_CSV = "src/main/resources/all-data.csv";
 	private final static String INDICATOR_CSV = "src/main/resources/indicator.csv";
 
-	private final static String DATA_LIN_CAS_CSV = "src/main/resources/lin-data-cas.csv";
-	private final static String DATA_ML_CAS_CSV = "src/main/resources/ml-data-cas.csv";
-	private final static String DATA_SIR_CAS_CSV = "src/main/resources/sir-data-cas.csv";
+	private final static String DATA_LIN_INF_CSV = "src/main/resources/lin-data-infection.csv";
+	private final static String DATA_ML_INF_CSV = "src/main/resources/ml-data-infection.csv";
+	private final static String DATA_SIR_INF_CSV = "src/main/resources/sir-data-infection.csv";
 
-	private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccin.csv";
-	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
-	private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/svir-data-vaccin.csv";
+	private final static String DATA_LIN_VAC_CSV = "src/main/resources/lin-data-vaccination.csv";
+	private final static String DATA_ML_VAC_CSV = "src/main/resources/ml-data-vaccination.csv";
+	private final static String DATA_SVIR_VAC_CSV = "src/main/resources/svir-data-vaccination.csv";
 
 	public static void main(String[] args) throws MalformedURLException, IOException, CsvException {
 		// To automatically download data and indicators
-		// downloadData();
+		downloadData();
 		// To parse data from json format to csv
 		parseAllDataToCSV();
 		// To custom the data set for the class LinearModelCas
@@ -131,7 +131,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_INF_CSV), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[2];
@@ -156,7 +156,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_ML_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_ML_INF_CSV), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[14];
@@ -216,7 +216,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SIR_CAS_CSV), CSVWriter.DEFAULT_SEPARATOR,
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SIR_INF_CSV), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[5];
@@ -251,7 +251,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_VACCIN_CSV), CSVWriter.DEFAULT_SEPARATOR,
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_LIN_VAC_CSV), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[2];
@@ -276,7 +276,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		Writer writer = Files.newBufferedWriter(Paths.get(DATA_ML_VACCIN_CSV));
+		Writer writer = Files.newBufferedWriter(Paths.get(DATA_ML_VAC_CSV));
 
 		CSVWriter csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER,
 				CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
@@ -328,7 +328,7 @@ public class DataMapper {
 		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SVIR_VACCIN_CSV), CSVWriter.DEFAULT_SEPARATOR,
+		CSVWriter csvWriter = new CSVWriter(new FileWriter(DATA_SVIR_VAC_CSV), CSVWriter.DEFAULT_SEPARATOR,
 				CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
 		String[] content = new String[7];
@@ -338,7 +338,7 @@ public class DataMapper {
 		content[3] = "I";
 		content[4] = "R";
 		content[5] = data.get(0)[25];
-		content[6] = "nouveau_tx_vaccination";
+		content[6] = "nouveau_taux_vaccination";
 		csvWriter.writeNext(content);
 
 		int N = 67000000;

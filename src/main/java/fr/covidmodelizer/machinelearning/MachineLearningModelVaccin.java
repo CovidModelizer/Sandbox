@@ -23,11 +23,11 @@ import weka.core.Instances;
 public class MachineLearningModelVaccin {
 
 	private final static LocalTime START = LocalTime.now();
-	private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccin.csv";
-	private final static String ML_VACCIN_PREDICTION = "ml-vaccin-prediction.csv";
+	private final static String DATA_ML_VAC_CSV = "src/main/resources/ml-data-vaccination.csv";
+	private final static String ML_VACCIN_PREDICTION = "ml-vaccination-prediction.csv";
 
 	public static void main(String[] args) throws Exception {
-		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_ML_VACCIN_CSV))
+		List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_ML_VAC_CSV))
 				.withCSVParser(new CSVParserBuilder().build()).build().readAll();
 
 		// Préparation du data set
@@ -48,6 +48,10 @@ public class MachineLearningModelVaccin {
 				instanceValue[j] = data.get(i)[j].isEmpty() ? Double.NaN : Double.parseDouble(data.get(i)[j]);
 			}
 			instanceValue[instanceValue.length - 1] = Double.NaN;
+			for (int j = 1; j < instanceValue.length; j++) {
+				instanceValue[j] = Double.isNaN(instanceValue[j]) ? instanceValue[j]
+						: instanceValue[j] < 0.0 ? Double.NaN : instanceValue[j];
+			}
 			dataSet.add(new DenseInstance(1.0, instanceValue));
 		}
 
@@ -66,7 +70,7 @@ public class MachineLearningModelVaccin {
 		Instance predictiveData = null;
 		LocalDate nextDate = null;
 
-		// Entraînement du modèle de régression linéaire
+		// Entraînement du modèle de régression linéaire à plusieurs variables
 		for (int n = 1; n <= expanse; n++) {
 			for (int i = 0; i < dataSet.size(); i++) {
 				realValue = (i + n) >= dataSet.size() ? Double.NaN : dataSet.instance(i + n).value(5);
@@ -124,16 +128,18 @@ public class MachineLearningModelVaccin {
 			nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);
 			csvWriter.writeNext(new String[] { nextDate.toString(),
-					String.valueOf((int) predictiveData.value(dataSet.numAttributes() - 1)),
-					String.valueOf((int) lrClassifier[i].classifyInstance(predictiveData)) });
+					String.valueOf((int) Math.ceil(predictiveData.value(dataSet.numAttributes() - 1))),
+					lrClassifier[i].classifyInstance(predictiveData) < 0 ? "0"
+							: String.valueOf((int) Math.ceil(lrClassifier[i].classifyInstance(predictiveData))) });
 		}
 		for (int i = 0; i < expanse; i++) {
 			predictiveData = allDataSet[i].instance(dataSet.size() - expanse - 1);
 			nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 					.plusDays(i + 1);
 			csvWriter.writeNext(new String[] { nextDate.toString(),
-					String.valueOf((int) predictiveData.value(dataSet.numAttributes() - 1)),
-					String.valueOf((int) lrClassifier[i].classifyInstance(predictiveData)) });
+					String.valueOf((int) Math.ceil(predictiveData.value(dataSet.numAttributes() - 1))),
+					lrClassifier[i].classifyInstance(predictiveData) < 0 ? "0"
+							: String.valueOf((int) Math.ceil(lrClassifier[i].classifyInstance(predictiveData))) });
 		}
 		for (int i = 0; i < expanse; i++) {
 			predictiveData = allDataSet[i].lastInstance();
@@ -141,7 +147,7 @@ public class MachineLearningModelVaccin {
 					.plusDays(i + 1);
 			csvWriter.writeNext(
 					new String[] { nextDate.toString(), "", lrClassifier[i].classifyInstance(predictiveData) < 0 ? "0"
-							: String.valueOf((int) lrClassifier[i].classifyInstance(predictiveData)) });
+							: String.valueOf((int) Math.ceil(lrClassifier[i].classifyInstance(predictiveData))) });
 		}
 		csvWriter.close();
 	}
