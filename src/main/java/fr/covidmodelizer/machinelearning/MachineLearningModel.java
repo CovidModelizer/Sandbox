@@ -87,10 +87,9 @@ public abstract class MachineLearningModel {
         for (int i = 0; i < allDataSet.length; i++) {
             dataToPredict = allDataSet[i].get(allDataSet[i].size() - expanse + i);
 
-            System.out.println("\n** Linear Regression Evaluation **");
-            System.out.println(eval[i].toSummaryString());
-            System.out.print("=> The expression of the classifier is : ");
-            System.out.println(lrClassifier[i]);
+            System.out.println("\n** Linear Regression Evaluation **\n" + eval[i].toSummaryString());
+            System.out.print(ConsoleColors.CYAN + "** Details of the classifier **\n"
+                    + lrClassifier[i] + ConsoleColors.RESET + "\n");
 
             predictiveData = allDataSet[i].get(allDataSet[i].size() - 1 - expanse);
             System.out.println(ConsoleColors.BLUE + "\nPrediction on " + predictiveData.stringValue(0) + " : "
@@ -99,12 +98,6 @@ public abstract class MachineLearningModel {
                     + predictiveData.value(dataSet.numAttributes() - 1) + ")");
             System.out.println(
                     "\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");
-
-            for (int j = 1; j < dataSet.numAttributes(); j++) {
-                if (lrClassifier[i].coefficients()[j] != 0.0) {
-                    System.out.println(dataSet.attribute(j).name() + " : " + lrClassifier[i].coefficients()[j]);
-                }
-            }
         }
 
         System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : "

@@ -20,7 +20,7 @@ import java.util.Random;
 public abstract class LinearModel {
 
     protected static void predict(final List<String[]> originalData, final ArrayList<Attribute> datasetAttributes,
-                           final String filePath) throws Exception {
+                                  final String filePath) throws Exception {
         final LocalTime START = LocalTime.now();
 
         Instances dataSet = new Instances("-- DATASET --", datasetAttributes, 0);
@@ -65,10 +65,9 @@ public abstract class LinearModel {
         eval.evaluateModel(lrClassifier, testSet);
 
         // Prédiction
-        System.out.println("** Linear Regression Evaluation **");
-        System.out.println(eval.toSummaryString());
-        System.out.print("=> The expression of the classifier is : ");
-        System.out.println(lrClassifier);
+        System.out.println("\n** Linear Regression Evaluation **\n" + eval.toSummaryString());
+        System.out.print(ConsoleColors.CYAN + "** Details of the classifier **\n"
+                + lrClassifier + ConsoleColors.RESET + "\n");
 
         predictiveData = dataSet.get(dataSet.size() - 2);
         System.out.println(ConsoleColors.BLUE + "\nPrediction on " + predictiveData.stringValue(0) + " : "
