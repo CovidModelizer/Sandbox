@@ -17,8 +17,8 @@ import fr.covidmodelizer.utils.ConsoleColors;
 public class VaccinationSVIRModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/data/svir-data-vaccination.csv";
-    private final static String SVIR_VACCIN_PREDICTION = "src/main/resources/predictions/svir-vaccination-prediction" +
+    private final static String DATA_SVIR_VACCIN_CSV = "resources/data/svir-data-vaccination.csv";
+    private final static String SVIR_VACCIN_PREDICTION = "resources/predictions/svir-vaccination-prediction" +
             ".csv";
 
     public static void main(String[] args) throws IOException, CsvException {

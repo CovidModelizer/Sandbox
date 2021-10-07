@@ -17,8 +17,8 @@ import fr.covidmodelizer.utils.ConsoleColors;
 public class InfectionSIRModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_SIR_INF_CSV = "src/main/resources/data/sir-data-infection.csv";
-    private final static String SIR_INF_PREDICTION = "src/main/resources/predictions/sir-infection-prediction.csv";
+    private final static String DATA_SIR_INF_CSV = "resources/data/sir-data-infection.csv";
+    private final static String SIR_INF_PREDICTION = "resources/predictions/sir-infection-prediction.csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SIR_INF_CSV))

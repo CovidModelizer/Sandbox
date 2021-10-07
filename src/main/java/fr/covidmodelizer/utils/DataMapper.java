@@ -35,18 +35,18 @@ public class DataMapper {
     private final static String INDICATOR_URL =
             "https://www.data.gouv.fr/fr/datasets/r/381a9472-ce83-407d-9a64-1b8c23af83df";
 
-    private final static String DATA_JSON = "src/main/resources/data/all-data.json";
+    private final static String DATA_JSON = "resources/data/all-data.json";
 
-    private final static String DATA_CSV = "src/main/resources/data/all-data.csv";
-    private final static String INDICATOR_CSV = "src/main/resources/data/indicator.csv";
+    private final static String DATA_CSV = "resources/data/all-data.csv";
+    private final static String INDICATOR_CSV = "resources/data/indicator.csv";
 
-    private final static String DATA_LIN_INF_CSV = "src/main/resources/data/lin-data-infection.csv";
-    private final static String DATA_ML_INF_CSV = "src/main/resources/data/ml-data-infection.csv";
-    private final static String DATA_SIR_INF_CSV = "src/main/resources/data/sir-data-infection.csv";
+    private final static String DATA_LIN_INF_CSV = "resources/data/lin-data-infection.csv";
+    private final static String DATA_ML_INF_CSV = "resources/data/ml-data-infection.csv";
+    private final static String DATA_SIR_INF_CSV = "resources/data/sir-data-infection.csv";
 
-    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/data/lin-data-vaccination.csv";
-    private final static String DATA_ML_VACCIN_CSV = "src/main/resources/data/ml-data-vaccination.csv";
-    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/data/svir-data-vaccination.csv";
+    private final static String DATA_LIN_VACCIN_CSV = "resources/data/lin-data-vaccination.csv";
+    private final static String DATA_ML_VACCIN_CSV = "resources/data/ml-data-vaccination.csv";
+    private final static String DATA_SVIR_VACCIN_CSV = "resources/data/svir-data-vaccination.csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         // To automatically download data and indicators
@@ -87,7 +87,7 @@ public class DataMapper {
         columns.sort(lengthComparator);
         csvBuilder.addColumns(columns, ColumnType.STRING);
 
-        String tmp_csv = "src/main/resources/tmp-data.csv";
+        String tmp_csv = "resources/data/tmp-data.csv";
         CsvMapper csvMapper = new CsvMapper();
         CsvSchema csvSchema = csvBuilder.build().withHeader();
         csvMapper.writerFor(JsonNode.class).with(csvSchema).writeValue(new File(tmp_csv), jsonTree);

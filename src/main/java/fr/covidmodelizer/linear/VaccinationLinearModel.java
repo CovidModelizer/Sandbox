@@ -24,8 +24,8 @@ import weka.core.Instances;
 public class VaccinationLinearModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/data/lin-data-vaccination.csv";
-    private final static String LIN_VACCIN_PREDICTION = "src/main/resources/predictions/lin-vaccination-prediction.csv";
+    private final static String DATA_LIN_VACCIN_CSV = "resources/data/lin-data-vaccination.csv";
+    private final static String LIN_VACCIN_PREDICTION = "resources/predictions/lin-vaccination-prediction.csv";
 
     public static void main(String[] args) throws Exception {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_LIN_VACCIN_CSV))
