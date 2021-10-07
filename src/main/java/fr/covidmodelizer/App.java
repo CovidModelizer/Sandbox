@@ -12,12 +12,13 @@ import fr.covidmodelizer.utils.DataMapper;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        // Prepare data for prediction models
+        // Data preparation for prediction models
         DataMapper.main(args);
-        // Launch all prediction models
+        // Predictions of infections
         InfectionLinearModel.main(args);
         InfectionMachineLearningModel.main(args);
         InfectionSIRModel.main(args);
+        // Predictions of vaccinations
         VaccinationLinearModel.main(args);
         VaccinationMachineLearningModel.main(args);
         VaccinationSVIRModel.main(args);

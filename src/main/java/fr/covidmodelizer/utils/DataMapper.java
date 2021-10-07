@@ -35,18 +35,18 @@ public class DataMapper {
     private final static String INDICATOR_URL =
             "https://www.data.gouv.fr/fr/datasets/r/381a9472-ce83-407d-9a64-1b8c23af83df";
 
-    private final static String DATA_JSON = "src/main/resources/all-data.json";
+    private final static String DATA_JSON = "src/main/resources/data/all-data.json";
 
-    private final static String DATA_CSV = "src/main/resources/all-data.csv";
-    private final static String INDICATOR_CSV = "src/main/resources/indicator.csv";
+    private final static String DATA_CSV = "src/main/resources/data/all-data.csv";
+    private final static String INDICATOR_CSV = "src/main/resources/data/indicator.csv";
 
-    private final static String DATA_LIN_INF_CSV = "src/main/resources/lin-data-infection.csv";
-    private final static String DATA_ML_INF_CSV = "src/main/resources/ml-data-infection.csv";
-    private final static String DATA_SIR_INF_CSV = "src/main/resources/sir-data-infection.csv";
+    private final static String DATA_LIN_INF_CSV = "src/main/resources/data/lin-data-infection.csv";
+    private final static String DATA_ML_INF_CSV = "src/main/resources/data/ml-data-infection.csv";
+    private final static String DATA_SIR_INF_CSV = "src/main/resources/data/sir-data-infection.csv";
 
-    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccination.csv";
-    private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccination.csv";
-    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/svir-data-vaccination.csv";
+    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/data/lin-data-vaccination.csv";
+    private final static String DATA_ML_VACCIN_CSV = "src/main/resources/data/ml-data-vaccination.csv";
+    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/data/svir-data-vaccination.csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         // To automatically download data and indicators
@@ -66,7 +66,7 @@ public class DataMapper {
         // To custom the data set for the class SVIRModelVaccin
         prepareDataForSVIRVaccination();
         // End of data preparation
-        System.out.println(ConsoleColors.GREEN + "\n>> All files in resources directory have been updated\n" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.YELLOW + "\n>> All files in resources directory have been updated\n" + ConsoleColors.RESET);
     }
 
     public static void downloadData() throws IOException {

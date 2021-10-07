@@ -24,8 +24,8 @@ import weka.core.Instances;
 public class VaccinationLinearModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/lin-data-vaccination.csv";
-    private final static String LIN_VACCIN_PREDICTION = "lin-vaccination-prediction.csv";
+    private final static String DATA_LIN_VACCIN_CSV = "src/main/resources/data/lin-data-vaccination.csv";
+    private final static String LIN_VACCIN_PREDICTION = "src/main/resources/predictions/lin-vaccination-prediction.csv";
 
     public static void main(String[] args) throws Exception {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_LIN_VACCIN_CSV))
@@ -83,13 +83,13 @@ public class VaccinationLinearModel {
         System.out.println(lrClassifier);
 
         predictiveData = dataSet.get(dataSet.size() - 2);
-        System.out.println("\nPrediction on " + predictiveData.stringValue(0) + " : "
-                + lrClassifier.classifyInstance(predictiveData) + " (value in dataset : "
+        System.out.println(ConsoleColors.BLUE + "\nPrediction on " + predictiveData.stringValue(0) + " : "
+                + lrClassifier.classifyInstance(predictiveData) + ConsoleColors.RESET + " (value in dataset : "
                 + predictiveData.value(dataSet.numAttributes() - 1) + ")");
         System.out.println("\nReal value for " + dataSet.lastInstance().stringValue(0) + " : "
                 + dataSet.lastInstance().value(1) + "\n");
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(LIN_VACCIN_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);

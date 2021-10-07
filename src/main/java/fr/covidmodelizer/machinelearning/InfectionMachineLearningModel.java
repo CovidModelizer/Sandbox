@@ -24,8 +24,8 @@ import weka.core.Instances;
 public class InfectionMachineLearningModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_ML_INF_CSV = "src/main/resources/ml-data-infection.csv";
-    private final static String ML_INF_PREDICTION = "ml-infection-prediction.csv";
+    private final static String DATA_ML_INF_CSV = "src/main/resources/data/ml-data-infection.csv";
+    private final static String ML_INF_PREDICTION = "src/main/resources/predictions/ml-infection-prediction.csv";
 
     public static void main(String[] args) throws Exception {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_ML_INF_CSV))
@@ -88,7 +88,7 @@ public class InfectionMachineLearningModel {
             testSet = dataSet.testCV(5, 0);
 
             lrClassifier[n - 1] = new LinearRegression();
-            lrClassifier[n - 1].setOptions(new String[] { "-R", "1" });
+            lrClassifier[n - 1].setOptions(new String[]{"-R", "1"});
             lrClassifier[n - 1].buildClassifier(trainSet);
 
             eval[n - 1] = new Evaluation(trainSet);
@@ -107,8 +107,8 @@ public class InfectionMachineLearningModel {
             System.out.println(lrClassifier[i]);
 
             predictiveData = allDataSet[i].get(allDataSet[i].size() - 1 - expanse);
-            System.out.println("\nPrediction on " + predictiveData.stringValue(0) + " : "
-                    + lrClassifier[i].classifyInstance(predictiveData) + " (value in dataset : "
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + predictiveData.stringValue(0) + " : "
+                    + lrClassifier[i].classifyInstance(predictiveData) + ConsoleColors.RESET + " (value in dataset : "
                     + predictiveData.value(dataSet.numAttributes() - 1) + ")");
             System.out.println(
                     "\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");
@@ -120,7 +120,7 @@ public class InfectionMachineLearningModel {
             }
         }
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(ML_INF_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);

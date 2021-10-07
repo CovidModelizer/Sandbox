@@ -17,8 +17,8 @@ import fr.covidmodelizer.utils.ConsoleColors;
 public class InfectionSIRModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_SIR_INF_CSV = "src/main/resources/sir-data-infection.csv";
-    private final static String SIR_INF_PREDICTION = "sir-infection-prediction.csv";
+    private final static String DATA_SIR_INF_CSV = "src/main/resources/data/sir-data-infection.csv";
+    private final static String SIR_INF_PREDICTION = "src/main/resources/predictions/sir-infection-prediction.csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SIR_INF_CSV))
@@ -40,17 +40,17 @@ public class InfectionSIRModel {
 
         // Initialisation
         final double N = 67000000.0;
-        double initialS = Double.parseDouble(data.get(firstDay)[1]);
-        double initialI = Double.parseDouble(data.get(firstDay)[2]);
-        double initialR = Double.parseDouble(data.get(firstDay)[3]);
-        double r0 = Double.parseDouble(data.get(firstDay)[4]);
+        double initialS;
+        double initialI;
+        double initialR;
+        double r0;
         double d = 10.0;
         double gamma = 1.0 / d;
-        double beta = r0 * gamma;
-        System.out.println("gamma : " + gamma);
-        System.out.println("beta : " + beta);
+        double beta;
 
         int expanse = 21;
+
+        LocalDate nextDate;
 
         // Calcul du SIR
         double[] predictiveSIR = null;
@@ -62,15 +62,13 @@ public class InfectionSIRModel {
             r0 = Double.parseDouble(data.get(firstDay + i)[4]);
             beta = r0 * gamma;
             predictiveSIR = SIRCalculation(N, initialS, initialI, initialR, gamma, beta);
-            System.out.println("\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSIR[1]
-                    + " (value in dataset : " + data.get(firstDay + i + 1)[2] + ")");
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSIR[1]
+                    + ConsoleColors.RESET +  " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
             System.out.println(
-                    "\nReal value for " + data.get(firstDay + i + 1)[0] + " : " + data.get(firstDay + i + 1)[2] + "\n");
+                    "\nReal value for " + data.get(firstDay + 1 + i)[0] + " : " + data.get(firstDay + 1 + i)[2] + "\n");
         }
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
-
-        LocalDate nextDate = null;
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(SIR_INF_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
@@ -78,14 +76,14 @@ public class InfectionSIRModel {
         csvWriter.writeNext(new String[]{"date", "real value", "prediction value"});
 
         for (int i = 0; i < (2 * expanse); i++) {
-            initialS = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[1]);
-            initialI = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[2]);
-            initialR = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[3]);
-            r0 = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[4]);
+            initialS = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[1]);
+            initialI = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[2]);
+            initialR = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[3]);
+            r0 = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[4]);
             beta = r0 * gamma;
             predictiveSIR = SIRCalculation(N, initialS, initialI, initialR, gamma, beta);
             nextDate = LocalDate
-                    .parse(data.get(data.size() - (2 * expanse) - 1 + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    .parse(data.get(data.size() - 1 - (2 * expanse) + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     .plusDays(1);
             csvWriter.writeNext(new String[]{nextDate.toString(), data.get(data.size() - (2 * expanse) + i)[2],
                     predictiveSIR[1] < 0 ? "0" : String.valueOf((int) predictiveSIR[1])});
