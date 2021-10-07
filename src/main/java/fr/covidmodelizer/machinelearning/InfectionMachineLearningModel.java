@@ -24,8 +24,8 @@ import weka.core.Instances;
 public class InfectionMachineLearningModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_ML_INF_CSV = "src/main/resources/data/ml-data-infection.csv";
-    private final static String ML_INF_PREDICTION = "src/main/resources/predictions/ml-infection-prediction.csv";
+    private final static String DATA_ML_INF_CSV = "resources/data/ml-data-infection.csv";
+    private final static String ML_INF_PREDICTION = "resources/predictions/ml-infection-prediction.csv";
 
     public static void main(String[] args) throws Exception {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_ML_INF_CSV))
