@@ -1,29 +1,23 @@
 package fr.covidmodelizer.utils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-
-import org.apache.commons.io.FileUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema.Builder;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema.ColumnType;
-
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class DataMapper {
 
@@ -83,7 +77,7 @@ public class DataMapper {
             j.fieldNames().forEachRemaining(columnFields::add);
         }
         List<String> columns = new ArrayList<>(columnFields);
-        Comparator<String> lengthComparator = (s1, s2) -> s1.length() == s2.length() ? 1 : s1.length() - s2.length();
+        Comparator<String> lengthComparator = (s1, s2) -> s1.length() == s2.length() ? 0 : s1.length() - s2.length();
         columns.sort(lengthComparator);
         csvBuilder.addColumns(columns, ColumnType.STRING);
 
@@ -102,16 +96,13 @@ public class DataMapper {
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
         int count = 0;
-        String[] entries = null;
+        String[] entries;
         while ((entries = csvReader.readNext()) != null) {
-            ArrayList<String> list = new ArrayList<String>(Arrays.asList(entries));
+            ArrayList<String> list = new ArrayList<>(Arrays.asList(entries));
             String[] array = new String[list.size()];
-            if (count == 0) {
-                list.add("r0");
-            } else {
-                list.add((count > 0 && count < 17) || r0data.get(count - 16)[2].equals("NA") ? ""
-                        : r0data.get(count - 16)[2]);
-            }
+            list.add(count == 0 ? "r0" :
+                    (count > 0 && count < 17) || r0data.get(count - 16)[2].equals("NA") ? ""
+                            : r0data.get(count - 16)[2]);
             count++;
             array = list.toArray(array);
             csvWriter.writeNext(array);
@@ -343,8 +334,8 @@ public class DataMapper {
             content[4] = data.get(i - daysToRecover)[5];
             content[3] = String.valueOf(Integer.parseInt(data.get(i)[5]) - Integer.parseInt(content[4]));
             content[2] = data.get(i)[15];
-            content[1] = String.valueOf(
-                    N - Integer.parseInt(content[2]) - Integer.parseInt(content[3]) - Integer.parseInt(content[4]));
+            content[1] = String.valueOf(N - Integer.parseInt(content[2])
+                    - Integer.parseInt(content[3]) - Integer.parseInt(content[4]));
             content[6] = String.valueOf(Double.parseDouble(data.get(i)[18]) / Double.parseDouble(content[1]));
             content[5] = "";
             for (int d = 0; d < 15; d++) {

@@ -23,6 +23,6 @@ public class App {
         VaccinationMachineLearningModel.main(args);
         VaccinationSVIRModel.main(args);
         // End of predictions
-        System.out.println(ConsoleColors.GREEN + "\n>> All predictions have been done\n" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.GREEN + "\n>> All predictions have been done" + ConsoleColors.RESET);
     }
 }
