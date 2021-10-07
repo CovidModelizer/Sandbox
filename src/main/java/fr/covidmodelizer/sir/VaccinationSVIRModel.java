@@ -1,5 +1,11 @@
 package fr.covidmodelizer.sir;
 
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
+import fr.covidmodelizer.utils.ConsoleColors;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,12 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.CSVWriter;
-import com.opencsv.exceptions.CsvException;
-import fr.covidmodelizer.utils.ConsoleColors;
 
 public class VaccinationSVIRModel {
 
@@ -68,13 +68,16 @@ public class VaccinationSVIRModel {
             txV = Double.parseDouble(data.get(firstDay + i)[6]);
             beta = r0 * gamma;
             predictiveSVIR = SVIRCalculation(N, initialS, initialV, initialI, initialR, gamma, beta, txV);
-            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSVIR[1]
-                    + ConsoleColors.RESET + " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + data.get(firstDay + i)[0] + " : "
+                    + predictiveSVIR[1]
+                    + ConsoleColors.RESET + " (value in dataset : "
+                    + data.get(firstDay + 1 + i)[2] + ")");
             System.out.println(
                     "\nReal value for " + data.get(firstDay + 1 + i)[0] + " : " + data.get(firstDay + 1 + i)[2] + "\n");
         }
 
-        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : "
+                + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(SVIR_VACCIN_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
@@ -90,9 +93,8 @@ public class VaccinationSVIRModel {
             txV = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[6]);
             beta = r0 * gamma;
             predictiveSVIR = SVIRCalculation(N, initialS, initialV, initialI, initialR, gamma, beta, txV);
-            nextDate = LocalDate
-                    .parse(data.get(data.size() - 1 - (2 * expanse) + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    .plusDays(1);
+            nextDate = LocalDate.parse(data.get(data.size() - 1 - (2 * expanse) + i)[0],
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusDays(1);
             csvWriter.writeNext(new String[]{nextDate.toString(), data.get(data.size() - (2 * expanse) + i)[2],
                     predictiveSVIR[1] < 0 ? "0" : String.valueOf((int) predictiveSVIR[1])});
         }
@@ -106,8 +108,8 @@ public class VaccinationSVIRModel {
         for (int i = 0; i < expanse; i++) {
             predictiveSVIR = SVIRCalculation(N, predictiveSVIR[0], predictiveSVIR[1], predictiveSVIR[2],
                     predictiveSVIR[3], gamma, beta, predictiveSVIR[4]);
-            nextDate = LocalDate.parse(data.get(data.size() - 1)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    .plusDays(i + 1);
+            nextDate = LocalDate.parse(data.get(data.size() - 1)[0],
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd")).plusDays(i + 1);
             csvWriter.writeNext(new String[]{nextDate.toString(), "",
                     predictiveSVIR[1] < 0 ? "0" : String.valueOf((int) predictiveSVIR[1])});
         }

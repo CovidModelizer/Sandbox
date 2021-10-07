@@ -130,7 +130,7 @@ public class DataMapper {
 
         String[] content = new String[2];
         content[0] = data.get(0)[0];
-        content[1] = data.get(0)[5];
+        content[1] = "cumul_" + data.get(0)[5];
         csvWriter.writeNext(content);
 
         for (int i = 0; i < data.size(); i++) {
