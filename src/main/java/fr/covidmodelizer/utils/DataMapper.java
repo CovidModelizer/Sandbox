@@ -66,7 +66,7 @@ public class DataMapper {
         // To custom the data set for the class SVIRModelVaccin
         prepareDataForSVIRVaccination();
         // End of data preparation
-        System.out.println(ConsoleColors.GREEN + "\n>> All files in resources directory have been updated\n" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.YELLOW + "\n>> All files in resources directory have been updated\n" + ConsoleColors.RESET);
     }
 
     public static void downloadData() throws IOException {

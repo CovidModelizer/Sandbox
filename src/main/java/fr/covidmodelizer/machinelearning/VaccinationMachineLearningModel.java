@@ -84,7 +84,7 @@ public class VaccinationMachineLearningModel {
             testSet = dataSet.testCV(5, 0);
 
             lrClassifier[n - 1] = new LinearRegression();
-            lrClassifier[n - 1].setOptions(new String[] { "-R", "1" });
+            lrClassifier[n - 1].setOptions(new String[]{"-R", "1"});
             lrClassifier[n - 1].buildClassifier(trainSet);
 
             eval[n - 1] = new Evaluation(trainSet);
@@ -116,14 +116,14 @@ public class VaccinationMachineLearningModel {
             }
         }
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(ML_VACCIN_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
 
         csvWriter.writeNext(new String[]{"date", "real value", "prediction value"});
         for (int i = 0; i < expanse; i++) {
-            predictiveData = allDataSet[i].instance(dataSet.size() - (2 * expanse) - 1);
+            predictiveData = allDataSet[i].instance(dataSet.size() - 1 - (2 * expanse));
             nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     .plusDays(i + 1);
             csvWriter.writeNext(new String[]{nextDate.toString(),
@@ -132,7 +132,7 @@ public class VaccinationMachineLearningModel {
                             : String.valueOf((int) Math.ceil(lrClassifier[i].classifyInstance(predictiveData)))});
         }
         for (int i = 0; i < expanse; i++) {
-            predictiveData = allDataSet[i].instance(dataSet.size() - expanse - 1);
+            predictiveData = allDataSet[i].instance(dataSet.size() - 1 - expanse);
             nextDate = LocalDate.parse(predictiveData.stringValue(0), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     .plusDays(i + 1);
             csvWriter.writeNext(new String[]{nextDate.toString(),

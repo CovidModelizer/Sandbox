@@ -89,7 +89,7 @@ public class InfectionLinearModel {
         System.out.println("\nReal value for " + dataSet.lastInstance().stringValue(0) + " : "
                 + dataSet.lastInstance().value(1) + "\n");
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(LIN_INF_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);

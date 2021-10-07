@@ -88,7 +88,7 @@ public class InfectionMachineLearningModel {
             testSet = dataSet.testCV(5, 0);
 
             lrClassifier[n - 1] = new LinearRegression();
-            lrClassifier[n - 1].setOptions(new String[] { "-R", "1" });
+            lrClassifier[n - 1].setOptions(new String[]{"-R", "1"});
             lrClassifier[n - 1].buildClassifier(trainSet);
 
             eval[n - 1] = new Evaluation(trainSet);
@@ -120,7 +120,7 @@ public class InfectionMachineLearningModel {
             }
         }
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(ML_INF_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);

@@ -41,17 +41,19 @@ public class VaccinationSVIRModel {
 
         // Initialisation
         final double N = 67000000.0;
-        double initialS = Double.parseDouble(data.get(firstDay)[1]);
-        double initialV = Double.parseDouble(data.get(firstDay)[2]);
-        double initialI = Double.parseDouble(data.get(firstDay)[3]);
-        double initialR = Double.parseDouble(data.get(firstDay)[4]);
-        double r0 = Double.parseDouble(data.get(firstDay)[5]);
-        double txV = Double.parseDouble(data.get(firstDay)[6]);
+        double initialS;
+        double initialV;
+        double initialI;
+        double initialR;
+        double r0;
+        double txV;
         double d = 10.0;
         double gamma = 1.0 / d;
-        double beta = r0 * gamma;
+        double beta;
 
         int expanse = 21;
+
+        LocalDate nextDate;
 
         // Calcul du SVIR
         double[] predictiveSVIR = null;
@@ -66,14 +68,12 @@ public class VaccinationSVIRModel {
             beta = r0 * gamma;
             predictiveSVIR = SVIRCalculation(N, initialS, initialV, initialI, initialR, gamma, beta, txV);
             System.out.println("\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSVIR[1]
-                    + " (value in dataset : " + data.get(firstDay + i + 1)[2] + ")");
+                    + " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
             System.out.println(
-                    "\nReal value for " + data.get(firstDay + i + 1)[0] + " : " + data.get(firstDay + i + 1)[2] + "\n");
+                    "\nReal value for " + data.get(firstDay + 1 + i)[0] + " : " + data.get(firstDay + 1 + i)[2] + "\n");
         }
 
-        System.out.println(ConsoleColors.BLUE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
-
-        LocalDate nextDate = null;
+        System.out.println(ConsoleColors.PURPLE + "\nTemps de calcul : " + LocalTime.now().minusNanos(START.toNanoOfDay()) + ConsoleColors.RESET);
 
         CSVWriter csvWriter = new CSVWriter(new FileWriter(SVIR_VACCIN_PREDICTION), CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.DEFAULT_LINE_END);
@@ -81,16 +81,16 @@ public class VaccinationSVIRModel {
         csvWriter.writeNext(new String[]{"date", "real value", "prediction value"});
 
         for (int i = 0; i < (2 * expanse); i++) {
-            initialS = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[1]);
-            initialV = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[2]);
-            initialI = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[3]);
-            initialR = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[4]);
-            r0 = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[5]);
-            txV = Double.parseDouble(data.get(data.size() - (2 * expanse) - 1 + i)[6]);
+            initialS = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[1]);
+            initialV = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[2]);
+            initialI = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[3]);
+            initialR = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[4]);
+            r0 = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[5]);
+            txV = Double.parseDouble(data.get(data.size() - 1 - (2 * expanse) + i)[6]);
             beta = r0 * gamma;
             predictiveSVIR = SVIRCalculation(N, initialS, initialV, initialI, initialR, gamma, beta, txV);
             nextDate = LocalDate
-                    .parse(data.get(data.size() - (2 * expanse) - 1 + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    .parse(data.get(data.size() - 1 - (2 * expanse) + i)[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                     .plusDays(1);
             csvWriter.writeNext(new String[]{nextDate.toString(), data.get(data.size() - (2 * expanse) + i)[2],
                     predictiveSVIR[1] < 0 ? "0" : String.valueOf((int) predictiveSVIR[1])});
