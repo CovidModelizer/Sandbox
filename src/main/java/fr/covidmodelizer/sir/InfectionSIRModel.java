@@ -17,8 +17,8 @@ import fr.covidmodelizer.utils.ConsoleColors;
 public class InfectionSIRModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_SIR_INF_CSV = "src/main/resources/sir-data-infection.csv";
-    private final static String SIR_INF_PREDICTION = "sir-infection-prediction.csv";
+    private final static String DATA_SIR_INF_CSV = "src/main/resources/data/sir-data-infection.csv";
+    private final static String SIR_INF_PREDICTION = "src/main/resources/predictions/sir-infection-prediction.csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SIR_INF_CSV))
@@ -62,8 +62,8 @@ public class InfectionSIRModel {
             r0 = Double.parseDouble(data.get(firstDay + i)[4]);
             beta = r0 * gamma;
             predictiveSIR = SIRCalculation(N, initialS, initialI, initialR, gamma, beta);
-            System.out.println("\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSIR[1]
-                    + " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSIR[1]
+                    + ConsoleColors.RESET +  " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
             System.out.println(
                     "\nReal value for " + data.get(firstDay + 1 + i)[0] + " : " + data.get(firstDay + 1 + i)[2] + "\n");
         }

@@ -24,8 +24,8 @@ import weka.core.Instances;
 public class VaccinationMachineLearningModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_ML_VACCIN_CSV = "src/main/resources/ml-data-vaccination.csv";
-    private final static String ML_VACCIN_PREDICTION = "ml-vaccination-prediction.csv";
+    private final static String DATA_ML_VACCIN_CSV = "src/main/resources/data/ml-data-vaccination.csv";
+    private final static String ML_VACCIN_PREDICTION = "src/main/resources/predictions/ml-vaccination-prediction.csv";
 
     public static void main(String[] args) throws Exception {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_ML_VACCIN_CSV))
@@ -103,8 +103,8 @@ public class VaccinationMachineLearningModel {
             System.out.println(lrClassifier[i]);
 
             predictiveData = allDataSet[i].get(allDataSet[i].size() - 1 - expanse);
-            System.out.println("\nPrediction on " + predictiveData.stringValue(0) + " : "
-                    + lrClassifier[i].classifyInstance(predictiveData) + " (value in dataset : "
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + predictiveData.stringValue(0) + " : "
+                    + lrClassifier[i].classifyInstance(predictiveData) + ConsoleColors.RESET + " (value in dataset : "
                     + predictiveData.value(dataSet.numAttributes() - 1) + ")");
             System.out.println(
                     "\nReal value for " + dataToPredict.stringValue(0) + " : " + dataToPredict.value(5) + "\n");

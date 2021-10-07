@@ -17,8 +17,9 @@ import fr.covidmodelizer.utils.ConsoleColors;
 public class VaccinationSVIRModel {
 
     private final static LocalTime START = LocalTime.now();
-    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/svir-data-vaccination.csv";
-    private final static String SVIR_VACCIN_PREDICTION = "svir-vaccination-prediction.csv";
+    private final static String DATA_SVIR_VACCIN_CSV = "src/main/resources/data/svir-data-vaccination.csv";
+    private final static String SVIR_VACCIN_PREDICTION = "src/main/resources/predictions/svir-vaccination-prediction" +
+            ".csv";
 
     public static void main(String[] args) throws IOException, CsvException {
         List<String[]> data = new CSVReaderBuilder(new FileReader(DATA_SVIR_VACCIN_CSV))
@@ -67,8 +68,8 @@ public class VaccinationSVIRModel {
             txV = Double.parseDouble(data.get(firstDay + i)[6]);
             beta = r0 * gamma;
             predictiveSVIR = SVIRCalculation(N, initialS, initialV, initialI, initialR, gamma, beta, txV);
-            System.out.println("\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSVIR[1]
-                    + " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
+            System.out.println(ConsoleColors.BLUE + "\nPrediction on " + data.get(firstDay + i)[0] + " : " + predictiveSVIR[1]
+                    + ConsoleColors.RESET + " (value in dataset : " + data.get(firstDay + 1 + i)[2] + ")");
             System.out.println(
                     "\nReal value for " + data.get(firstDay + 1 + i)[0] + " : " + data.get(firstDay + 1 + i)[2] + "\n");
         }
