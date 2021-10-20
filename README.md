@@ -34,7 +34,7 @@
 keytool -import -file <certificat> -alias <donner un nom au certificat> -keystore <path vers le fichier cacerts>
 ```
 
-* Pour récupérer les dernières données relatives à la covid et aux vaccinations :
+* Pour récupérer les dernières données relatives à la COVID-19 :
     * Lancer la méthode main de la classe DataMapper
 * Pour générer les prédictions d'infections et de vaccinations :
     * Lancer les méthodes main des classes de modèles prédictifs
