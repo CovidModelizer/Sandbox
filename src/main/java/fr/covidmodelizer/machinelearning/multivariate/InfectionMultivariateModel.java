@@ -1,7 +1,8 @@
-package fr.covidmodelizer.machinelearning;
+package fr.covidmodelizer.machinelearning.multivariate;
 
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReaderBuilder;
+import fr.covidmodelizer.machinelearning.MachineLearningModel;
 import fr.covidmodelizer.utils.ProjectFiles;
 import fr.covidmodelizer.utils.WekaDataset;
 import weka.core.Attribute;
@@ -12,21 +13,21 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InfectionMachineLearningModel extends MachineLearningModel {
+public class InfectionMultivariateModel extends MachineLearningModel {
 
     public static void main(String[] args) throws Exception {
-        InfectionMachineLearningModel model = new InfectionMachineLearningModel();
-        model.predict();
+        InfectionMultivariateModel model = new InfectionMultivariateModel();
+        model.calculate();
     }
 
     @Override
-    public void predict() throws Exception {
-        List<String[]> data = new CSVReaderBuilder(new FileReader(ProjectFiles.MACHINE_LEARNING_INFECTION_DATA_CSV))
+    public void calculate() throws Exception {
+        List<String[]> data = new CSVReaderBuilder(new FileReader(ProjectFiles.MULTIVARIATE_INFECTION_DATA_CSV))
                 .withCSVParser(new CSVParserBuilder().build()).build().readAll();
         // Initializing dataset
         Instances dataset = initDataset(data);
         // Calculating prediction
-        machineLearningPrediction(dataset, ProjectFiles.MACHINE_LEARNING_INFECTION_PREDICTION_CSV);
+        multivariateLinearRegression(dataset, ProjectFiles.MULTIVARIATE_INFECTION_PREDICTION_CSV);
     }
 
     @Override
