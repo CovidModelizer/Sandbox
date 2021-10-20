@@ -23,9 +23,9 @@
 ## Technologies
 
 * Java 8
-* [Weka 3.8](https://waikato.github.io/weka-wiki/documentation/)
+* [Weka 3.8](https://waikato.github.io/weka-wiki/)
 
-## Lancement
+## Exécution
 
 * Télécharger le certificat SSL de [opendata.gouv](https://www.data.gouv.fr/fr/)
 * Importer le certificat dans votre JRE :
