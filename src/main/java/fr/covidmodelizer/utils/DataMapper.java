@@ -101,9 +101,11 @@ public class DataMapper {
             ArrayList<String> list = new ArrayList<>(Arrays.asList(entries));
             String[] array = new String[list.size()];
             // Adding the r0 indicator when it exists
-            list.add(count == 0 ? "r0" :
-                    (count > 0 && count < 17) || indicators.get(count - 16)[2].equals("NA") ? ""
-                            : indicators.get(count - 16)[2]);
+            list.add(count == 0 ? "r0"
+                    : (count > 0 && count < 17)
+                    || (count - 16) >= indicators.size()
+                    || indicators.get(count - 16)[2].equals("NA")
+                    ? "" : indicators.get(count - 16)[2]);
             count++;
             array = list.toArray(array);
             csvWriter.writeNext(array);
