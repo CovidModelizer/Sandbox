@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>fr.pantheonsorbonne.ufr27.miage</groupId>
     <artifactId>covid-modelizer-sandbox</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <name>covid-modelizer-sandbox</name>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
